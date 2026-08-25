@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'restaurants/base.html' %}
 
 {% block title %}My Bookings & Orders - Malabar Hub{% endblock %}
 
@@ -6,301 +6,53 @@
 <div class="container py-5">
     <div class="row mb-4">
         <div class="col-12">
-            <h2 class="fw-bold text-dark"><i class="fas fa-clipboard-list text-success me-2"></i> My Bookings & Orders</h2>
+            <h2 class="fw-bold text-dark"><i class="fas fa-clipboard-list text-success me-2"></i>My Bookings & Orders</h2>
             <p class="text-muted">Manage your table reservations, room stays, banquet bookings, and food delivery orders.</p>
             <hr>
         </div>
     </div>
 
-    <!-- Navigation Tabs -->
-    <ul class="nav nav-tabs mb-4" id="bookingTab" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active fw-semibold" id="tables-tab" data-bs-toggle="tab" data-bs-target="#tables-pane" type="button" role="tab">
-                <i class="fas fa-chair me-1"></i> Tables <span class="badge bg-secondary ms-1">{{ table_bookings|length|default:0 }}</span>
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link fw-semibold" id="rooms-tab" data-bs-toggle="tab" data-bs-target="#rooms-pane" type="button" role="tab">
-                <i class="fas fa-bed me-1"></i> Rooms <span class="badge bg-secondary ms-1">{{ room_bookings|length|default:0 }}</span>
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link fw-semibold" id="banquets-tab" data-bs-toggle="tab" data-bs-target="#banquets-pane" type="button" role="tab">
-                <i class="fas fa-glass-cheers me-1"></i> Banquets <span class="badge bg-secondary ms-1">{{ banquet_bookings|length|default:0 }}</span>
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link fw-semibold" id="deliveries-tab" data-bs-toggle="tab" data-bs-target="#deliveries-pane" type="button" role="tab">
-                <i class="fas fa-motorcycle me-1"></i> Home Delivery <span class="badge bg-secondary ms-1">{{ delivery_orders|length|default:0 }}</span>
-            </button>
-        </li>
-    </ul>
-
-    <!-- Tab Content -->
-    <div class="tab-content" id="bookingTabContent">
-        
-        <!-- 1. Table Bookings Pane -->
-        <div class="tab-pane fade show active" id="tables-pane" role="tabpanel">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h5 class="card-title text-success mb-3"><i class="fas fa-chair me-2"></i> Table Reservations</h5>
-                    {% if table_bookings %}
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Ref ID</th>
-                                        <th>Date & Time</th>
-                                        <th>Guests</th>
-                                        <th>Status</th>
-                                        <th class="text-end">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for booking in table_bookings %}
-                                    <tr>
-                                        <td class="fw-bold">#TBL-{{ booking.id }}</td>
-                                        <td>{{ booking.date|date:"M d, Y" }} at {{ booking.time|time:"H:i" }}</td>
-                                        <td>{{ booking.guests }} Persons</td>
-                                        <td>
-                                            <span class="badge {% if booking.status|lower == 'confirmed' %}bg-success{% elif booking.status|lower == 'cancelled' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
-                                                {{ booking.status }}
-                                            </span>
-                                        </td>
-                                        <td class="text-end">
-                                            {% if booking.status|lower == 'confirmed' or booking.status|lower == 'pending' %}
-                                                <form action="{% url 'cancel_table_booking' booking.id %}" method="POST" onsubmit="return confirm('Cancel this table reservation?');" class="d-inline">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold">
-                                                        <i class="fas fa-times me-1"></i> Cancel
-                                                    </button>
-                                                </form>
-                                            {% else %}
-                                                <span class="text-muted small">Not cancellable</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <p class="text-muted mb-0 py-4 text-center">You have no active table bookings.</p>
-                    {% endif %}
+    <!-- Bookings Sections -->
+    <div class="row">
+        <div class="col-12">
+            {% if bookings %}
+                <div class="table-responsive shadow-sm rounded">
+                    <table class="table table-hover align-middle bg-white mb-0">
+                        <thead class="table-success">
+                            <tr>
+                                <th scope="col">Booking ID</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Details</th>
+                                <th scope="col">Date / Time</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in bookings %}
+                            <tr>
+                                <th scope="row">#{{ booking.id }}</th>
+                                <td><span class="badge bg-secondary">{{ booking.get_booking_type_display|default:"Reservation" }}</span></td>
+                                <td>{{ booking.details|default:"N/A" }}</td>
+                                <td>{{ booking.created_at|date:"M d, Y H:i" }}</td>
+                                <td>
+                                    <span class="badge bg-{% if booking.status == 'Confirmed' or booking.status == 'Approved' %}success{% elif booking.status == 'Pending' %}warning text-dark{% else %}danger{% endif %}">
+                                        {{ booking.status|default:"Pending" }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-        </div>
-
-        <!-- 2. Room Bookings Pane -->
-        <div class="tab-pane fade" id="rooms-pane" role="tabpanel">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h5 class="card-title text-success mb-3"><i class="fas fa-bed me-2"></i> Room Accommodations</h5>
-                    {% if room_bookings %}
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Ref ID</th>
-                                        <th>Room Type</th>
-                                        <th>Check-in / Out</th>
-                                        <th>Status</th>
-                                        <th class="text-end">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for booking in room_bookings %}
-                                    <tr>
-                                        <td class="fw-bold">#RM-{{ booking.id }}</td>
-                                        <td>{{ booking.room_type.name|default:"Standard Room" }}</td>
-                                        <td>{{ booking.check_in|date:"M d, Y" }} <br><small class="text-muted">to {{ booking.check_out|date:"M d, Y" }}</small></td>
-                                        <td>
-                                            <span class="badge {% if booking.status|lower == 'confirmed' %}bg-success{% elif booking.status|lower == 'cancelled' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
-                                                {{ booking.status }}
-                                            </span>
-                                        </td>
-                                        <td class="text-end">
-                                            {% if booking.status|lower == 'confirmed' or booking.status|lower == 'pending' %}
-                                                <form action="{% url 'cancel_room_booking' booking.id %}" method="POST" onsubmit="return confirm('Cancel this room reservation?');" class="d-inline">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold">
-                                                        <i class="fas fa-times me-1"></i> Cancel
-                                                    </button>
-                                                </form>
-                                            {% else %}
-                                                <span class="text-muted small">Not cancellable</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <p class="text-muted mb-0 py-4 text-center">You have no active room bookings.</p>
-                    {% endif %}
+            {% else %}
+                <div class="text-center py-5 bg-white rounded shadow-sm">
+                    <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                    <h5 class="text-secondary">No bookings or orders found.</h5>
+                    <p class="text-muted small">You haven't made any reservations or orders yet.</p>
+                    <a href="{% url 'customer_restaurant_view' %}" class="btn btn-success mt-2">Explore Restaurants</a>
                 </div>
-            </div>
-        </div>
-
-        <!-- 3. Banquet Bookings Pane -->
-        <div class="tab-pane fade" id="banquets-pane" role="tabpanel">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h5 class="card-title text-success mb-3"><i class="fas fa-glass-cheers me-2"></i> Banquet Hall Bookings</h5>
-                    {% if banquet_bookings %}
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Ref ID</th>
-                                        <th>Event Date</th>
-                                        <th>Estimated Guests</th>
-                                        <th>Status</th>
-                                        <th class="text-end">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for booking in banquet_bookings %}
-                                    <tr>
-                                        <td class="fw-bold">#BNQ-{{ booking.id }}</td>
-                                        <td>{{ booking.event_date|date:"M d, Y" }}</td>
-                                        <td>{{ booking.guests }} Persons</td>
-                                        <td>
-                                            <span class="badge {% if booking.status|lower == 'confirmed' %}bg-success{% elif booking.status|lower == 'cancelled' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
-                                                {{ booking.status }}
-                                            </span>
-                                        </td>
-                                        <td class="text-end">
-                                            {% if booking.status|lower == 'confirmed' or booking.status|lower == 'pending' %}
-                                                <form action="{% url 'cancel_banquet_booking' booking.id %}" method="POST" onsubmit="return confirm('Cancel this banquet event booking?');" class="d-inline">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold">
-                                                        <i class="fas fa-times me-1"></i> Cancel
-                                                    </button>
-                                                </form>
-                                            {% else %}
-                                                <span class="text-muted small">Not cancellable</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <p class="text-muted mb-0 py-4 text-center">You have no active banquet reservations.</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- 4. Home Delivery Orders Pane -->
-        <div class="tab-pane fade" id="deliveries-pane" role="tabpanel">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h5 class="card-title text-success mb-3"><i class="fas fa-motorcycle me-2"></i> Home Delivery Orders</h5>
-                    {% if delivery_orders %}
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Order ID</th>
-                                        <th>Date Placed</th>
-                                        <th>Total Amount</th>
-                                        <th>Status</th>
-                                        <th class="text-end">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for order in delivery_orders %}
-                                    <tr>
-                                        <td class="fw-bold">#ORD-{{ order.id }}</td>
-                                        <td>{{ order.created_at|date:"M d, Y H:i" }}</td>
-                                        <td>₹{{ order.total_price }}</td>
-                                        <td>
-                                            <span class="badge {% if order.status|lower == 'delivered' %}bg-success{% elif order.status|lower == 'cancelled' %}bg-danger{% else %}bg-info text-dark{% endif %}">
-                                                {{ order.status }}
-                                            </span>
-                                        </td>
-                                        <td class="text-end">
-                                            <button class="btn btn-sm btn-outline-success fw-semibold px-2 me-1" data-bs-toggle="modal" data-bs-target="#trackModal{{ order.id }}">
-                                                <i class="fas fa-map-marked-alt me-1"></i> Track
-                                            </button>
-                                            
-                                            {% if order.status|lower == 'order placed' or order.status|lower == 'pending' %}
-                                                <form action="{% url 'cancel_delivery_order' order.id %}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this order?');" class="d-inline">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold px-2">
-                                                        <i class="fas fa-times me-1"></i> Cancel
-                                                    </button>
-                                                </form>
-                                            {% else %}
-                                                <button class="btn btn-sm btn-outline-secondary fw-semibold px-2" disabled title="Cannot cancel once preparation has started">
-                                                    <i class="fas fa-ban me-1"></i> Cancel
-                                                </button>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <p class="text-muted mb-0 py-4 text-center">You have no home delivery orders yet.</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-<!-- Tracking Modals -->
-{% for order in delivery_orders %}
-<div class="modal fade" id="trackModal{{ order.id }}" tabindex="-1" aria-labelledby="trackModalLabel{{ order.id }}" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title" id="trackModalLabel{{ order.id }}"><i class="fas fa-shipping-fast me-2"></i> Track Order #ORD-{{ order.id }}</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <p class="text-muted mb-1">Current Status:</p>
-                    <h4 class="text-success fw-bold">{{ order.status }}</h4>
-                </div>
-                
-                <!-- Progress Bar using CSS Variable technique to keep VS Code linter clean -->
-                {% with status_lower=order.status|lower %}
-                <div class="progress mb-4" style="height: 10px;">
-                    <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" 
-                         style="--p-width: {% if status_lower == 'delivered' %}100%{% elif status_lower == 'out for delivery' %}75%{% elif status_lower == 'preparing' %}50%{% else %}25%{% endif %}; width: var(--p-width);">
-                    </div>
-                </div>
-                {% endwith %}
-
-                <ul class="list-group list-group-flush text-start small">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Order Placed <i class="fas fa-check-circle text-success"></i>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Kitchen Preparation <i class="fas {% if order.status|lower != 'order placed' and order.status|lower != 'pending' %}fa-check-circle text-success{% else %}fa-clock text-muted{% endif %}"></i>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Out for Delivery <i class="fas {% if order.status|lower == 'out for delivery' or order.status|lower == 'delivered' %}fa-check-circle text-success{% else %}fa-clock text-muted{% endif %}"></i>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Delivered <i class="fas {% if order.status|lower == 'delivered' %}fa-check-circle text-success{% else %}fa-clock text-muted{% endif %}"></i>
-                    </li>
-                </ul>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-            </div>
+            {% endif %}
         </div>
     </div>
 </div>
-{% endfor %}
-
 {% endblock %}
