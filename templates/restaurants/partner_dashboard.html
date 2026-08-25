@@ -2,134 +2,115 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Partner Dashboard - Malabar Hub</title>
+    <title>Restaurant & Hospitality Management Dashboard - {{ restaurant.business_name|default:"Malabar Hub" }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .dashboard-card {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            border-radius: 12px;
-            border: none;
-        }
-        .dashboard-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
-        }
+        body { background-color: #f8f9fa; }
+        .card-custom { border-radius: 12px; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: transform 0.2s; }
+        .card-custom:hover { transform: translateY(-3px); }
     </style>
 </head>
-<body class="bg-light">
+<body class="py-5">
 
-    
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4 py-3 shadow-sm">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold text-warning" href="#">
-                <i class="fas fa-store me-2"></i>Malabar Hub | Partner Portal
-            </a>
-            <div class="d-flex align-items-center">
-                <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm px-3 fw-semibold">
+    <div class="container">
+        <!-- Dashboard Header -->
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h1 class="fw-bold text-success mb-1">Restaurant & Hospitality Management Dashboard</h1>
+                <p class="text-muted mb-0">Manage your profile, menus, bookings, and spaces from one place.</p>
+            </div>
+            <div>
+                <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm fw-semibold">
                     <i class="fas fa-sign-out-alt me-1"></i> Logout
                 </a>
             </div>
         </div>
-    </nav>
 
-    <div class="container py-5">
-        
-        
-        {% if restaurant and not restaurant.is_verified %}
-        <div class="alert alert-warning border-0 shadow-sm p-4 mb-4 rounded-4 text-center">
-            <i class="fas fa-clock fa-2x mb-2 text-warning"></i>
-            <h4 class="fw-bold">Account Pending Admin Approval</h4>
-            <p class="mb-0 text-muted">Your profile and KYC details have been submitted. An administrator will review your information shortly to verify your account.</p>
-        </div>
-        {% endif %}
-
-
-        <div class="mb-4">
-            <h1 class="fw-bold text-dark">Restaurant & Hospitality Management Dashboard</h1>
-            <p class="text-muted">Manage your profile, menus, bookings, and spaces from one place.</p>
-        </div>
-
-        
+        <!-- Management Cards Grid -->
         <div class="row g-4">
             
-            
+            <!-- 1. Complete Your Profile -->
             <div class="col-md-4">
-                <div class="card dashboard-card shadow-sm p-4 text-center bg-white h-100">
-                    <div class="mb-3 text-success fs-1">
+                <div class="card card-custom p-4 bg-white h-100 d-flex flex-column">
+                    <div class="text-success mb-3 fs-2">
                         <i class="fas fa-id-card"></i>
                     </div>
-                    <h4 class="fw-bold text-dark">Complete Your Profile</h4>
-                    <p class="text-muted small">Upload KYC documents, bank details, and venue photos for your establishment.</p>
-                    <div class="mt-auto pt-3">
-                        <a href="{% url 'edit_restaurant_profile' %}" class="btn btn-success w-100 fw-semibold">
-                            <i class="fas fa-edit me-1"></i> Setup Profile & KYC
-                        </a>
-                    </div>
+                    <h4 class="fw-bold mb-2">Complete Your Profile</h4>
+                    <p class="text-muted small mb-4">Upload KYC documents, bank details, and venue photos for your establishment.</p>
+                    <a href="{% url 'partner_register' %}" class="btn btn-success fw-semibold mt-auto">
+                        <i class="fas fa-user-edit me-1"></i> Setup Profile & KYC
+                    </a>
                 </div>
             </div>
 
-        
+            <!-- 2. Home Delivery -->
             <div class="col-md-4">
-                <div class="card dashboard-card shadow-sm p-4 text-center bg-white h-100">
-                    <div class="mb-3 text-success fs-1">
+                <div class="card card-custom p-4 bg-white h-100 d-flex flex-column">
+                    <div class="text-success mb-3 fs-2">
                         <i class="fas fa-motorcycle"></i>
                     </div>
-                    <h4 class="fw-bold text-dark">Home Delivery</h4>
-                    <p class="text-muted small">Manage food menu items, prices, and availability for home delivery orders.</p>
-                    <div class="mt-auto pt-3">
-                        <a href="{% url 'manage_menu' %}" class="btn btn-success w-100 fw-semibold">
-                            <i class="fas fa-utensils me-1"></i> Manage Delivery Menu
-                        </a>
-                    </div>
+                    <h4 class="fw-bold mb-2">Home Delivery</h4>
+                    <p class="text-muted small mb-4">Manage food menu items, prices, and availability for home delivery orders.</p>
+                    <a href="#" class="btn btn-success fw-semibold mt-auto">
+                        <i class="fas fa-utensils me-1"></i> Manage Delivery Menu
+                    </a>
                 </div>
             </div>
 
-            
+            <!-- 3. Book Tables -->
             <div class="col-md-4">
-                <div class="card dashboard-card shadow-sm p-4 text-center bg-white h-100">
-                    <div class="mb-3 text-success fs-1">
+                <div class="card card-custom p-4 bg-white h-100 d-flex flex-column">
+                    <div class="text-success mb-3 fs-2">
                         <i class="fas fa-chair"></i>
                     </div>
-                    <h4 class="fw-bold text-dark">Book Tables</h4>
-                    <p class="text-muted small">Configure restaurant tables and dining seating slots for table reservations.</p>
-                    <div class="mt-auto pt-3">
-                        <a href="{% url 'manage_spaces_by_type' space_type='table' %}" class="btn btn-success w-100 fw-semibold">
-                            <i class="fas fa-chair me-1"></i> Manage Tables
-                        </a>
-                    </div>
+                    <h4 class="fw-bold mb-2">Book Tables</h4>
+                    <p class="text-muted small mb-4">Configure restaurant tables and dining seating slots for table reservations.</p>
+                    <a href="#" class="btn btn-success fw-semibold mt-auto">
+                        <i class="fas fa-calendar-alt me-1"></i> Manage Tables
+                    </a>
                 </div>
             </div>
 
-        
+            <!-- 4. Room Accommodations -->
             <div class="col-md-4">
-                <div class="card dashboard-card shadow-sm p-4 text-center bg-white h-100">
-                    <div class="mb-3 text-success fs-1">
+                <div class="card card-custom p-4 bg-white h-100 d-flex flex-column">
+                    <div class="text-success mb-3 fs-2">
                         <i class="fas fa-bed"></i>
                     </div>
-                    <h4 class="fw-bold text-dark">Room Accommodations</h4>
-                    <p class="text-muted small">Manage rooms, overnight rates, and lodging capacities for guests.</p>
-                    <div class="mt-auto pt-3">
-                        <a href="{% url 'manage_spaces_by_type' space_type='room' %}" class="btn btn-success w-100 fw-semibold">
-                            <i class="fas fa-hotel me-1"></i> Manage Rooms
-                        </a>
-                    </div>
+                    <h4 class="fw-bold mb-2">Room Accommodations</h4>
+                    <p class="text-muted small mb-4">Manage rooms, overnight rates, and lodging capacities for guests.</p>
+                    <a href="#" class="btn btn-success fw-semibold mt-auto">
+                        <i class="fas fa-hotel me-1"></i> Manage Rooms
+                    </a>
                 </div>
             </div>
 
-            
+            <!-- 5. Banquet Events -->
             <div class="col-md-4">
-                <div class="card dashboard-card shadow-sm p-4 text-center bg-white h-100">
-                    <div class="mb-3 text-success fs-1">
+                <div class="card card-custom p-4 bg-white h-100 d-flex flex-column">
+                    <div class="text-success mb-3 fs-2">
                         <i class="fas fa-glass-cheers"></i>
                     </div>
-                    <h4 class="fw-bold text-dark">Banquet Events</h4>
-                    <p class="text-muted small">Set up banquet halls, pricing tiers, and schedules for special events.</p>
-                    <div class="mt-auto pt-3">
-                        <a href="{% url 'manage_spaces_by_type' space_type='banquet' %}" class="btn btn-success w-100 fw-semibold">
-                            <i class="fas fa-calendar-alt me-1"></i> Manage Banquets
-                        </a>
+                    <h4 class="fw-bold mb-2">Banquet Events</h4>
+                    <p class="text-muted small mb-4">Set up banquet halls, pricing tiers, and schedules for special events.</p>
+                    <a href="#" class="btn btn-success fw-semibold mt-auto">
+                        <i class="fas fa-calendar-check me-1"></i> Manage Banquets
+                    </a>
+                </div>
+            </div>
+
+            <!-- 6. Revenue & Reports Card (New) -->
+            <div class="col-md-4">
+                <div class="card card-custom p-4 bg-white h-100 d-flex flex-column">
+                    <div class="text-success mb-3 fs-2">
+                        <i class="fas fa-chart-line"></i>
                     </div>
+                    <h4 class="fw-bold mb-2">Revenue & Reports</h4>
+                    <p class="text-muted small mb-4">Track total earnings, analyze booking trends, and download comprehensive CSV reports across all sections.</p>
+                    <a href="{% url 'partner_revenue_report' %}" class="btn btn-success fw-semibold mt-auto">
+                        <i class="fas fa-file-invoice-dollar me-1"></i> View Reports
+                    </a>
                 </div>
             </div>
 
