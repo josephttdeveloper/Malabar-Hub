@@ -42,6 +42,7 @@ urlpatterns = [
     path('cancel-room/<int:booking_id>/', views.cancel_room_booking, name='cancel_room_booking'),
     path('cancel-banquet/<int:booking_id>/', views.cancel_banquet_booking, name='cancel_banquet_booking'),
     path('cancel-delivery/<int:order_id>/', views.cancel_delivery_order, name='cancel_delivery_order'),
+    path('super-admin/login/', views.super_admin_login_view, name='super_admin_login'),
 ]
 
 if settings.DEBUG:

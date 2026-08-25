@@ -37,7 +37,8 @@
             <a href="{% url 'get_started' %}" class="btn btn-outline-light btn-sm fw-semibold">
                 <i class="fas fa-arrow-left me-1"></i> Back to Role Selection
             </a>
-            <a href="{% url 'admin:index' %}" class="admin-icon text-decoration-none fs-5" title="Admin Portal">
+            <!-- Protected Super Admin Portal Link -->
+            <a href="{% url 'super_admin_login' %}" class="admin-icon text-decoration-none fs-5" title="Super Admin Portal">
                 <i class="fas fa-shield-alt"></i>
             </a>
         </div>

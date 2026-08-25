@@ -517,6 +517,22 @@ def customer_home_delivery(request, restaurant_id):
   }
   return render(request, 'restaurants/customer_home_delivery.html', context)
 
+
+def super_admin_login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None and user.is_staff:
+            login(request, user)
+            return redirect('super_admin_dashboard')
+        else:
+            messages.error(request, "Invalid credentials or unauthorized access.")
+            
+    return render(request, 'restaurants/super_admin_login.html')
+
+
 @staff_member_required
 def super_admin_dashboard_view(request):
     restaurants = Restaurant.objects.all()
