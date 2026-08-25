@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Profile & KYC - Malabar Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-9">
+                <div class="card shadow p-4 border-0">
+                    <h3 class="text-center mb-4 text-success fw-bold">Complete Your Restaurant Profile</h3>
+                    <p class="text-muted text-center small mb-4">Provide your compliance details, documents, and venue section photos.</p>
+
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        
+                        <h5 class="text-success mb-3">1. Business Information</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Business Name</label>
+                                <input type="text" name="business_name" class="form-control" value="{{ restaurant.business_name }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Owner Name</label>
+                                <input type="text" name="owner_name" class="form-control" value="{{ restaurant.owner_name }}" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phone Number</label>
+                                <input type="text" name="phone_number" class="form-control" value="{{ restaurant.phone_number }}" required>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        
+                        <h5 class="text-success mb-3">2. KYC & Compliance Documents</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">PAN Card Number</label>
+                                <input type="text" name="pan_card" class="form-control mb-2" value="{{ restaurant.pan_card|default:'' }}" placeholder="ABCDE1234F">
+                                <label class="form-label small text-muted">Upload PAN Document {% if restaurant.pan_document %}(Current file uploaded){% endif %}</label>
+                                <input type="file" name="pan_document" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">GST Number (Optional)</label>
+                                <input type="text" name="gst_number" class="form-control mb-2" value="{{ restaurant.gst_number|default:'' }}" placeholder="Optional">
+                                <label class="form-label small text-muted">Upload GST Document</label>
+                                <input type="file" name="gst_document" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">FSSAI License Number</label>
+                            <input type="text" name="fssai_license" class="form-control mb-2" value="{{ restaurant.fssai_license|default:'' }}">
+                            <label class="form-label small text-muted">Upload FSSAI Certificate</label>
+                            <input type="file" name="fssai_document" class="form-control form-control-sm">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Bank Account Number</label>
+                                <input type="text" name="bank_account" class="form-control" value="{{ restaurant.bank_account|default:'' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">IFSC Code</label>
+                                <input type="text" name="ifsc_code" class="form-control" value="{{ restaurant.ifsc_code|default:'' }}">
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        
+                        <h5 class="text-success mb-3">3. Venue Section Images</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Restaurant Outside View</label>
+                                <input type="file" name="outside_view" class="form-control">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Restaurant Inside View</label>
+                                <input type="file" name="inside_view" class="form-control">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Table Area Images</label>
+                                <input type="file" name="table_images" class="form-control">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Room Images (Hotel/Stays)</label>
+                                <input type="file" name="room_images" class="form-control">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Banquet Images</label>
+                                <input type="file" name="banquet_images" class="form-control">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Rooftop Images</label>
+                                <input type="file" name="rooftop_images" class="form-control">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Bar Images</label>
+                                <input type="file" name="bar_images" class="form-control">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100 py-2 fw-bold mt-3">Save Profile & Return to Dashboard</button>
+                    </form>
+
+                    <div class="text-center mt-3">
+                        <a href="{% url 'partner_dashboard' %}" class="text-secondary text-decoration-none small">← Back to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

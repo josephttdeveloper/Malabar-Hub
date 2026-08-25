@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Super Admin Dashboard - Malabar Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+    
+    <nav class="navbar navbar-dark bg-dark px-4 shadow-sm">
+        <a class="navbar-brand fw-bold text-warning" href="#">
+            <i class="fas fa-crown me-2"></i>Malabar Hub | Super Admin Dashboard
+        </a>
+        <div class="d-flex align-items-center">
+            <a href="{% url 'admin:index' %}" class="btn btn-outline-light btn-sm me-3">Django Native Admin</a>
+            <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">Log Out</a>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-4 px-4">
+        
+    
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm p-3 bg-white border-start border-primary border-4">
+                    <h6 class="text-muted text-uppercase small fw-bold">Active Partners</h6>
+                    <h3 class="fw-bold text-dark mb-0">{{ active_count }}</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm p-3 bg-white border-start border-warning border-4">
+                    <h6 class="text-muted text-uppercase small fw-bold">Pending Verifications</h6>
+                    <h3 class="fw-bold text-dark mb-0">{{ pending_count }}</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm p-3 bg-white border-start border-success border-4">
+                    <h6 class="text-muted text-uppercase small fw-bold">Total Platform Revenue</h6>
+                    <h3 class="fw-bold text-dark mb-0">₹4,50,000</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm p-3 bg-white mb-4">
+                    <h6 class="text-secondary fw-bold text-uppercase small mb-3">Vendor Management</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2"><a href="#" class="text-decoration-none text-dark fw-semibold"><i class="fas fa-building me-2 text-success"></i> Partner Profiles <span class="badge bg-warning text-dark ms-1">{{ pending_count }}</span></a></li>
+                    </ul>
+                    <hr class="my-3">
+                    <h6 class="text-secondary fw-bold text-uppercase small mb-3">Core Services Inventory</h6>
+                    <ul class="list-unstyled mb-0 small">
+                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Rooms (Global View)</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Tables (Global View)</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Banquets (Global View)</a></li>
+                        <li class="mb-0"><a href="#" class="text-decoration-none text-muted">Delivery Men Profiles</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            
+            <div class="col-md-9">
+                <div class="card border-0 shadow-sm p-4 bg-white">
+                    <h4 class="fw-bold text-dark mb-3"><i class="fas fa-tools me-2 text-secondary"></i>Partner Actions & Approvals Grid</h4>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th><input type="checkbox" id="selectAll"></th>
+                                        <th>Business Name</th>
+                                        <th>Owner</th>
+                                        <th>Phone</th>
+                                        <th>Status</th>
+                                        <th>Action / Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for r in restaurants %}
+                                    <tr>
+                                        <td><input type="checkbox" name="selected_restaurants" value="{{ r.id }}"></td>
+                                        <td class="fw-bold text-dark">{{ r.business_name }}</td>
+                                        <td>{{ r.owner_name }}</td>
+                                        <td>{{ r.phone_number }}</td>
+                                        <td>
+                                            {% if r.is_verified %}
+                                                <span class="badge bg-success bg-opacity-15 text-success px-2 py-1"><i class="fas fa-check-circle me-1"></i> Verified</span>
+                                            {% else %}
+                                                <span class="badge bg-warning bg-opacity-15 text-dark px-2 py-1"><i class="fas fa-clock me-1"></i> Pending</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-1">
+                                                <a href="{% url 'admin:restaurants_restaurant_change' r.id %}" target="_blank" class="btn btn-outline-primary btn-sm fw-bold">
+                                                    <i class="fas fa-eye me-1"></i> Check Details
+                                                </a>
+                                                <a href="{% url 'delete_restaurant' r.id %}" class="btn btn-outline-danger btn-sm fw-bold" onclick="return confirm('Are you sure you want to delete {{ r.business_name }}?');">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-4">No restaurant partners found.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        
+                        <div class="d-flex align-items-center mt-3 bg-light p-3 rounded">
+                            <select name="action_type" class="form-select form-select-sm w-auto me-3">
+                                <option value="">- Select Action -</option>
+                                <option value="approve">Approve Selected Partners</option>
+                                <option value="delete">Delete Selected Partners</option>
+                            </select>
+                            <button type="submit" class="btn btn-success btn-sm fw-bold px-4">Run Action</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        
+        document.getElementById('selectAll').addEventListener('click', function(e) {
+            let checkboxes = document.querySelectorAll('input[name="selected_restaurants"]');
+            for (let checkbox of checkboxes) {
+                checkbox.checked = e.target.checked;
+            }
+        });
+    </script>
+</body>
+</html>

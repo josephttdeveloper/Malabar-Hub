@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurant Partner Signup - Malabar Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            min-height: 100vh;
+            color: white;
+        }
+        .auth-card {
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            color: #333;
+        }
+        .admin-icon {
+            color: rgba(255, 255, 255, 0.6);
+            transition: color 0.2s ease;
+        }
+        .admin-icon:hover {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100 justify-content-center py-5">
+
+    <div class="container">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <a href="{% url 'get_started' %}" class="btn btn-outline-light btn-sm fw-semibold">
+                <i class="fas fa-arrow-left me-1"></i> Back to Role Selection
+            </a>
+            <a href="{% url 'admin:index' %}" class="admin-icon text-decoration-none fs-5" title="Admin Portal">
+                <i class="fas fa-shield-alt"></i>
+            </a>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-7">
+                
+                <div class="card auth-card shadow-lg p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold text-success">Restaurant Partner Signup</h2>
+                        <p class="text-muted small">Register your business details to access your dashboard. You can complete your KYC and upload venue photos later.</p>
+                    </div>
+
+                    
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-danger alert-dismissible fade show py-2 small" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="mb-3 border-bottom pb-2">
+                        <span class="text-secondary fw-bold small"><i class="fas fa-store me-2 text-success"></i>Business & Owner Details</span>
+                    </div>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold small text-secondary">Business Name</label>
+                                <input type="text" name="business_name" class="form-control" placeholder="Enter business name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold small text-secondary">Owner Name</label>
+                                <input type="text" name="owner_name" class="form-control" placeholder="Enter owner name" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold small text-secondary">Email Address (Login ID)</label>
+                                <input type="email" name="email" class="form-control" placeholder="Enter email address" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold small text-secondary">Phone Number</label>
+                                <input type="text" name="phone" class="form-control" placeholder="Enter phone number" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold small text-secondary">Password</label>
+                                <input type="password" name="password" class="form-control" placeholder="Create a password" required>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label fw-semibold small text-secondary">Confirm Password</label>
+                                <input type="password" name="confirm_password" class="form-control" placeholder="Re-enter your password" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg w-100 fw-semibold py-2 shadow-sm">
+                            <i class="fas fa-user-plus me-1"></i> Register Partner Account
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

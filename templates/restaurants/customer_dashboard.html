@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Dashboard - Malabar Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .restaurant-card { transition: transform 0.2s; border-radius: 12px; overflow: hidden; }
+        .restaurant-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.08); }
+        .restaurant-img { width: 100%; height: 160px; object-fit: cover; }
+    </style>
+</head>
+<body class="bg-light">
+
+    
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm py-3 px-4">
+        <div class="container-fluid">
+            
+            <a class="navbar-brand fw-bold text-white text-decoration-none" href="#">
+                <i class="fas fa-utensils me-2"></i>Malabar Hub
+            </a>
+
+            
+            <div class="d-flex align-items-center ms-auto">
+                <span class="text-white me-3 fw-semibold">Welcome, {{ customer_name }}</span>
+                <a href="{% url 'customer_bookings' %}" class="btn btn-outline-light btn-sm fw-bold px-3 me-2">
+                    <i class="fas fa-calendar-alt me-1"></i> My Bookings
+                </a>
+                <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm fw-bold px-3">Sign Out</a>
+            </div>
+        </div>
+    </nav>
+
+    
+    <div class="container py-5">
+        
+        
+        <div class="card border-0 shadow-sm p-4 mb-5 bg-white rounded-3 text-center">
+            <h1 class="fw-bold text-success mb-2">Discover Malabar's Finest Hospitality</h1>
+            <p class="text-muted mb-0">Explore partner restaurants, book spaces, or order home delivery instantly.</p>
+        </div>
+
+
+        <div class="mb-4">
+            <h3 class="fw-bold text-dark mb-1">Partner Restaurants & Venues</h3>
+            <p class="text-muted small">Select a restaurant to view their menu or available spaces.</p>
+        </div>
+
+        <div class="row g-4">
+            {% for restaurant in restaurants %}
+                <div class="col-md-4">
+                    <div class="card restaurant-card shadow-sm border-0 bg-white text-center">
+                        
+                        {% if restaurant.outside_view %}
+                            <img src="{{ restaurant.outside_view.url }}" alt="{{ restaurant.business_name }}" class="restaurant-img">
+                        {% else %}
+                            <div class="bg-light rounded-circle d-inline-flex p-4 mx-auto my-4 text-success">
+                                <i class="fas fa-store fa-2x"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="p-4">
+                            <h4 class="fw-bold text-dark mb-2">{{ restaurant.business_name }}</h4>
+                            <p class="text-muted small mb-4">{{ restaurant.cuisine_type|default:"Multi-Cuisine & Accommodations" }}</p>
+                            <a href="{% url 'customer_restaurant_view' restaurant.id %}" class="btn btn-success w-100 py-2 fw-bold shadow-sm">
+                                <i class="fas fa-arrow-right me-1"></i> Visit Restaurant
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-warning text-center py-4 border-0 shadow-sm">
+                        
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

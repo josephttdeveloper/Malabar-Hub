@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Menu - Malabar Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light py-4">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold text-success m-0">📋 Menu Management</h3>
+            <a href="{% url 'partner_dashboard' %}" class="btn btn-outline-secondary btn-sm">← Back to Dashboard</a>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row">
+            
+            <div class="col-md-5 mb-4">
+                <div class="card shadow-sm border-0 p-3">
+                    <h5 class="fw-bold mb-3">Add New Food Item</h5>
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Item Name</label>
+                            <input type="text" name="name" class="form-control" placeholder="e.g., Chicken Biryani" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Price (₹)</label>
+                                <input type="number" step="0.01" name="price" class="form-control" placeholder="180.00" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Category</label>
+                                <select name="category" class="form-select">
+                                    <option value="starters">Starters</option>
+                                    <option value="main_course" selected>Main Course</option>
+                                    <option value="beverages">Beverages</option>
+                                    <option value="desserts">Desserts</option>
+                                    <option value="snacks">Snacks</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="2" placeholder="Brief description..."></textarea>
+                        </div>
+                        
+                        
+                        <div class="mb-3 form-check bg-white p-2 border rounded">
+                            <input type="checkbox" name="is_veg" id="is_veg" class="form-check-input ms-1 me-2">
+                            <label for="is_veg" class="form-check-label fw-semibold text-dark">🥬 Vegetarian Dish (Leave unchecked for Non-Veg)</label>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Item Photo</label>
+                            <input type="file" name="image" class="form-control form-control-sm">
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 fw-bold">Add Item to Menu</button>
+                    </form>
+                </div>
+            </div>
+
+            
+            <div class="col-md-7">
+                <div class="card shadow-sm border-0 p-3">
+                    <h5 class="fw-bold mb-3">Current Menu Items ({{ items.count }})</h5>
+                    {% if items %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Category</th>
+                                        <th>Price</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in items %}
+                                        <tr>
+                                            <td>
+                                                <span class="fw-bold">{{ item.name }}</span>
+                                                {% if item.is_veg %}
+                                                    <span class="badge bg-success small ms-1">Veg</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger small ms-1">Non-Veg</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-capitalize text-muted small">{{ item.get_category_display }}</td>
+                                            <td class="fw-bold">₹{{ item.price }}</td>
+                                            <td>
+                                                <a href="{% url 'delete_menu_item' item.id %}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Delete {{ item.name }}?')">Delete</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-4">No menu items added yet. Use the form on the left to add items.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

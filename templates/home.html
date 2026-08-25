@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to Malabar Hub - Hospitality & Booking Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 120px 0;
+            border-radius: 0 0 24px 24px;
+        }
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 12px;
+            border: none;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 1rem 3rem rgba(0,0,0,.1) !important;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4 py-3 shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold text-warning" href="{% url 'home' %}">
+                <i class="fas fa-utensils me-2"></i>Malabar Hub
+            </a>
+            <div class="d-flex align-items-center">
+                <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm px-4 fw-semibold">
+                    <i class="fas fa-sign-in-alt me-1"></i> Sign In
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    
+    <div class="hero-section text-center shadow">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-3">Discover the Best of Hospitality</h1>
+            <p class="lead mb-4 text-light opacity-85">Your ultimate destination for seamless Table Bookings, Room Accommodations, Banquet Events, and Home Delivery.</p>
+            
+            <a href="{% url 'get_started' %}" class="btn btn-success btn-lg px-5 py-3 fw-bold shadow-lg rounded-pill">
+                <i class="fas fa-compass me-2"></i> Explore Services Now
+            </a>
+        </div>
+    </div>
+
+    
+    <div class="container py-5 my-3">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-dark">What We Offer</h2>
+            <p class="text-muted">Everything you need for dining, lodging, and celebrations in one unified platform.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card feature-card shadow-sm p-4 text-center bg-white h-100">
+                    <div class="mb-3 text-success fs-1">
+                        <i class="fas fa-chair"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">Table Bookings</h5>
+                    <p class="text-muted small">Reserve your favorite dining tables instantly with live availability tracking.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card feature-card shadow-sm p-4 text-center bg-white h-100">
+                    <div class="mb-3 text-primary fs-1">
+                        <i class="fas fa-bed"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">Room Stays</h5>
+                    <p class="text-muted small">Book comfortable rooms and luxury stays with partner hotels effortlessly.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card feature-card shadow-sm p-4 text-center bg-white h-100">
+                    <div class="mb-3 text-warning fs-1">
+                        <i class="fas fa-glass-cheers"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">Banquet Events</h5>
+                    <p class="text-muted small">Plan weddings, parties, and corporate events with spacious banquet bookings.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card feature-card shadow-sm p-4 text-center bg-white h-100">
+                    <div class="mb-3 text-danger fs-1">
+                        <i class="fas fa-motorcycle"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">Home Delivery</h5>
+                    <p class="text-muted small">Order authentic dishes directly from top-rated partner restaurants to your doorstep.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <footer class="bg-dark text-white text-center py-4 mt-5">
+        <div class="container">
+            <p class="mb-0 text-muted small">&copy; 2026 Malabar Hub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

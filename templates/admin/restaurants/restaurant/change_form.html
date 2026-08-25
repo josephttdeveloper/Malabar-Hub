@@ -1,0 +1,32 @@
+{% extends "admin/change_form.html" %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .back-dashboard-btn {
+        background-color: #198754;
+        color: white !important;
+        padding: 6px 14px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .back-dashboard-btn:hover {
+        background-color: #157347;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+    <a href="{% url 'super_admin_dashboard' %}" class="back-dashboard-btn">
+        <i class="fas fa-arrow-left"></i> &larr; Back to Super Admin Dashboard
+    </a>
+</div>
+{{ block.super }}
+{% endblock %}

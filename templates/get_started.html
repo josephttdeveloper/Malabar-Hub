@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Get Started - Malabar Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            min-height: 100vh;
+            color: white;
+        }
+        .selection-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+        }
+        .selection-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.3) !important;
+        }
+    </style>
+</head>
+<body class="d-flex align-items-center justify-content-center">
+
+    <div class="container text-center py-5">
+        <h1 class="fw-bold display-5 mb-2 text-warning">Join Malabar Hub</h1>
+        <p class="lead text-light mb-5 opacity-85">Select how you want to use our platform</p>
+        
+        <div class="row justify-content-center g-4">
+            
+            <div class="col-md-5">
+                <div class="card selection-card shadow-lg p-5 h-100 text-center border-top border-success border-4">
+                    <div class="mb-3 text-success fs-1">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                    <h3 class="text-success fw-bold mb-3">Customer / Guest</h3>
+                    <p class="text-muted mb-4">Book tables, reserve rooms, plan banquets, and order food home delivery.</p>
+                    <a href="{% url 'customer_register' %}" class="btn btn-success btn-lg w-100 mt-auto fw-semibold rounded-pill py-2">Register as Customer</a>
+                </div>
+            </div>
+
+            
+            <div class="col-md-5">
+                <div class="card selection-card shadow-lg p-5 h-100 text-center border-top border-primary border-4">
+                    <div class="mb-3 text-primary fs-1">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <h3 class="text-primary fw-bold mb-3">Partner / Vendor</h3>
+                    <p class="text-muted mb-4">Register your restaurant, list rooms/tables, and manage incoming orders.</p>
+                    <a href="{% url 'partner_register' %}" class="btn btn-primary btn-lg w-100 mt-auto fw-semibold rounded-pill py-2">Register as Partner</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-5">
+            <a href="{% url 'home' %}" class="text-decoration-none text-light fw-semibold opacity-75 hover-opacity-100">
+                <i class="fas fa-arrow-left me-1"></i> Back to Home
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

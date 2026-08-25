@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ restaurant.business_name }} - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .service-card { transition: transform 0.2s ease, box-shadow 0.2s ease; border-radius: 12px; }
+        .service-card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.1) !important; }
+        .gallery-img { height: 180px; object-fit: cover; }
+    </style>
+</head>
+<body class="bg-light">
+
+    
+    <nav class="navbar navbar-dark bg-success shadow-sm py-3 sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{% url 'customer_dashboard' %}"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</a>
+            <span class="text-white fw-semibold">{{ restaurant.business_name }}</span>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        
+        <div class="row mb-4">
+            <div class="col-12 bg-white p-4 rounded-4 shadow-sm border">
+                <h1 class="fw-bold text-success">{{ restaurant.business_name }}</h1>
+                <p class="text-muted mb-1"><i class="fas fa-map-marker-alt text-danger me-1"></i> {{ restaurant.location|default:"Malabar Region" }}</p>
+                <p class="text-secondary mb-0">{{ restaurant.description }}</p>
+            </div>
+        </div>
+
+        
+        <div class="row g-4 mb-5">
+            <div class="col-md-3 col-sm-6">
+                <a href="{% url 'customer_table_booking' restaurant.id %}" class="text-decoration-none">
+                    <div class="card service-card shadow-sm border-0 p-4 text-center bg-white h-100">
+                        <i class="fas fa-chair fa-2x text-success mb-2"></i>
+                        <h5 class="fw-bold text-dark mb-1">Table Booking</h5>
+                        <p class="text-muted small mb-0">Reserve dining tables</p>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-md-3 col-sm-6">
+                <a href="{% url 'customer_room_booking' restaurant.id %}" class="text-decoration-none">
+                    <div class="card service-card shadow-sm border-0 p-4 text-center bg-white h-100">
+                        <i class="fas fa-bed fa-2x text-success mb-2"></i>
+                        <h5 class="fw-bold text-dark mb-1">Room Booking</h5>
+                        <p class="text-muted small mb-0">Book available rooms</p>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-md-3 col-sm-6">
+                <a href="{% url 'customer_banquet_booking' restaurant.id %}" class="text-decoration-none">
+                    <div class="card service-card shadow-sm border-0 p-4 text-center bg-white h-100">
+                        <i class="fas fa-glass-cheers fa-2x text-success mb-2"></i>
+                        <h5 class="fw-bold text-dark mb-1">Banquet Halls</h5>
+                        <p class="text-muted small mb-0">Explore event spaces</p>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-md-3 col-sm-6">
+                <a href="{% url 'customer_home_delivery' restaurant.id %}" class="text-decoration-none">
+                    <div class="card service-card shadow-sm border-0 p-4 text-center bg-white h-100">
+                        <i class="fas fa-motorcycle fa-2x text-success mb-2"></i>
+                        <h5 class="fw-bold text-dark mb-1">Home Delivery</h5>
+                        <p class="text-muted small mb-0">Order food items</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+<<<<<<< HEAD
+        
+=======
+        <!-- 3. Venue Section Images Gallery -->
+>>>>>>> 03043805c53f36e9bdfa07b943138b22ea8ff7af
+        {% if restaurant.outside_view or restaurant.inside_view or restaurant.table_images or restaurant.room_images or restaurant.banquet_images or restaurant.rooftop_images or restaurant.bar_images %}
+        <div class="mb-5">
+            <h4 class="fw-bold text-dark mb-3"><i class="fas fa-images text-success me-2"></i> Gallery & Highlights</h4>
+            <div class="row g-3">
+                
+                {% if restaurant.outside_view %}
+                <div class="col-md-3 col-sm-6">
+                    <div class="card shadow-sm border-0 overflow-hidden h-100">
+                        <img src="{{ restaurant.outside_view.url }}" class="card-img-top gallery-img" alt="Outside View">
+                        <div class="card-body p-2 text-center bg-white">
+                            <span class="small fw-bold text-secondary">Outside View</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if restaurant.inside_view %}
+                <div class="col-md-3 col-sm-6">
+                    <div class="card shadow-sm border-0 overflow-hidden h-100">
+                        <img src="{{ restaurant.inside_view.url }}" class="card-img-top gallery-img" alt="Inside View">
+                        <div class="card-body p-2 text-center bg-white">
+                            <span class="small fw-bold text-secondary">Inside View</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if restaurant.table_images %}
+                <div class="col-md-3 col-sm-6">
+                    <div class="card shadow-sm border-0 overflow-hidden h-100">
+                        <img src="{{ restaurant.table_images.url }}" class="card-img-top gallery-img" alt="Table Area">
+                        <div class="card-body p-2 text-center bg-white">
+                            <span class="small fw-bold text-secondary">Table Area</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if restaurant.room_images %}
+                <div class="col-md-3 col-sm-6">
+                    <div class="card shadow-sm border-0 overflow-hidden h-100">
+                        <img src="{{ restaurant.room_images.url }}" class="card-img-top gallery-img" alt="Room Stays">
+                        <div class="card-body p-2 text-center bg-white">
+                            <span class="small fw-bold text-secondary">Rooms / Stays</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if restaurant.banquet_images %}
+                <div class="col-md-3 col-sm-6">
+                    <div class="card shadow-sm border-0 overflow-hidden h-100">
+                        <img src="{{ restaurant.banquet_images.url }}" class="card-img-top gallery-img" alt="Banquet Halls">
+                        <div class="card-body p-2 text-center bg-white">
+                            <span class="small fw-bold text-secondary">Banquet Halls</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if restaurant.rooftop_images %}
+                <div class="col-md-3 col-sm-6">
+                    <div class="card shadow-sm border-0 overflow-hidden h-100">
+                        <img src="{{ restaurant.rooftop_images.url }}" class="card-img-top gallery-img" alt="Rooftop">
+                        <div class="card-body p-2 text-center bg-white">
+                            <span class="small fw-bold text-secondary">Rooftop</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if restaurant.bar_images %}
+                <div class="col-md-3 col-sm-6">
+                    <div class="card shadow-sm border-0 overflow-hidden h-100">
+                        <img src="{{ restaurant.bar_images.url }}" class="card-img-top gallery-img" alt="Bar">
+                        <div class="card-body p-2 text-center bg-white">
+                            <span class="small fw-bold text-secondary">Bar Section</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

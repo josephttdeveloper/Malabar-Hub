@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Delivery Menu - Malabar Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .sidebar { min-height: 100vh; background-color: #2c3e50; color: #fff; }
+        .sidebar .nav-link { color: #bdc3c7; padding: 12px 20px; font-weight: 500; transition: 0.3s; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { color: #fff; background-color: #198754; border-radius: 8px; }
+        .card { border-radius: 12px; border: none; }
+        .table thead { background-color: #f8f9fa; }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse p-3">
+                <div class="d-flex align-items-center mb-4 mt-2">
+                    <span class="fs-4 fw-bold text-white">🏢 Malabar Hub</span>
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2"><a href="{% url 'partner_dashboard' %}" class="nav-link"><i class="fas fa-chart-line me-2"></i> Dashboard</a></li>
+                    <li class="nav-item mb-2"><a href="#" class="nav-link active"><i class="fas fa-utensils me-2"></i> Home Delivery</a></li>
+                    <li class="nav-item mb-2"><a href="#" class="nav-link"><i class="fas fa-calendar-alt me-2"></i> Orders</a></li>
+                    <li class="nav-item mb-2"><a href="{% url 'edit_restaurant_profile' %}" class="nav-link"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                </ul>
+            </nav>
+
+            
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+                    <h2 class="fw-bold text-dark">Manage Delivery Menu & Active Orders</h2>
+                    <a href="{% url 'partner_dashboard' %}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i> Back to Dashboard</a>
+                </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                            <i class="fas fa-check-circle me-2"></i> {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="row g-4">
+                    
+                    <div class="col-lg-5">
+                        <div class="card shadow-sm p-4">
+                            <h5 class="fw-bold mb-3 text-success"><i class="fas fa-plus-circle me-2"></i> Form: Add New Food Item</h5>
+                            <form method="POST">
+                                {% csrf_token %}
+                                
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Dish Name / Title</label>
+                                    <input type="text" name="dish_name" class="form-control" placeholder="e.g. Hyderabadi Chicken Biryani" required>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label small fw-bold">Category</label>
+                                        <select name="category" class="form-select">
+                                            <option value="Starters">Starters</option>
+                                            <option value="Main Course">Main Course</option>
+                                            <option value="Desserts">Desserts</option>
+                                            <option value="Beverages">Beverages</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label small fw-bold">Dietary Tag</label>
+                                        <div class="d-flex gap-2 mt-1">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="dietary_tag" value="Veg" id="tagVeg" checked>
+                                                <label class="form-check-label small text-success fw-bold" for="tagVeg">🟢 Veg</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="dietary_tag" value="Non-Veg" id="tagNonVeg">
+                                                <label class="form-check-label small text-danger fw-bold" for="tagNonVeg">🔴 Non-Veg</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="dietary_tag" value="Egg" id="tagEgg">
+                                                <label class="form-check-label small text-warning fw-bold" for="tagEgg">🟡 Egg</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label small fw-bold">Base Delivery Price (₹)</label>
+                                        <input type="number" step="0.01" name="price" class="form-control" placeholder="280.00" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label small fw-bold">Discount Price (₹)</label>
+                                        <input type="number" step="0.01" name="discount_price" class="form-control" placeholder="Optional">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Packaging Charge (₹)</label>
+                                    <input type="number" step="0.01" name="packaging_fee" class="form-control" placeholder="e.g. 15.00" required>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label small fw-bold">Preparation Time</label>
+                                        <select name="prep_time" class="form-select">
+                                            <option value="15 mins">15 mins</option>
+                                            <option value="25 mins" selected>25 mins</option>
+                                            <option value="40 mins">40 mins</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label small fw-bold">Max Daily Qty Limit</label>
+                                        <input type="number" name="daily_limit" class="form-control" placeholder="e.g. 50">
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label small fw-bold">Customization / Modifier Groups</label>
+                                    <textarea name="modifiers" class="form-control" rows="2" placeholder="e.g. Extra Cheese (+₹40), Spice Level (Mild, Spicy)"></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-success w-100 fw-bold shadow-sm">Add Item to Delivery Menu</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    
+                    <div class="col-lg-7">
+                        <div class="card shadow-sm p-4 h-100">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0">Live Menu Inventory</h5>
+                                <div class="operations-panel">
+                                    <button class="btn btn-sm btn-outline-warning fw-bold"><i class="fas fa-pause me-1"></i> Pause All Orders</button>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead class="text-muted">
+                                        <tr>
+                                            <th>Dish Name</th>
+                                            <th>Category</th>
+                                            <th>Price</th>
+                                            <th>Status</th>
+                                            <th class="text-center">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in menu_items %}
+                                        <tr>
+                                            <td class="fw-bold">
+                                                {% if item.is_veg %}🟢{% else %}🔴{% endif %} 
+                                                {{ item.name }}
+                                            </td>
+                                            <td><span class="badge bg-light text-dark border">{{ item.get_category_display|default:item.category }}</span></td>
+                                            <td class="text-success fw-bold">₹{{ item.price }}</td>
+                                            <td>
+                                                {% if item.is_available %}
+                                                    <span class="badge bg-success">In Stock</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">Out of Stock</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-center">
+                                                <form action="#" method="POST" onsubmit="return confirm('Remove item?');">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="5" class="text-center py-5 text-muted">
+                                                <i class="fas fa-utensils fa-2x mb-2 text-secondary"></i>
+                                                <p class="mb-0">No food items added to the delivery menu yet.</p>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
