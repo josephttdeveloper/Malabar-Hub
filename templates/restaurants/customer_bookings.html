@@ -1,58 +1,188 @@
-{% extends 'restaurants/base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Bookings & Orders - Malabar Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-light">
 
-{% block title %}My Bookings & Orders - Malabar Hub{% endblock %}
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-success shadow-sm py-3">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold text-white text-decoration-none" href="{% url 'customer_dashboard' %}">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+            <span class="text-white fw-semibold">My Bookings</span>
+        </div>
+    </nav>
 
-{% block content %}
-<div class="container py-5">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="fw-bold text-dark"><i class="fas fa-clipboard-list text-success me-2"></i>My Bookings & Orders</h2>
-            <p class="text-muted">Manage your table reservations, room stays, banquet bookings, and food delivery orders.</p>
-            <hr>
+    <!-- Header Section -->
+    <div class="bg-white border-bottom shadow-sm py-4 mb-4">
+        <div class="container px-4">
+            <h2 class="fw-bold text-success mb-1">
+                <i class="fas fa-clipboard-list me-2"></i>My Bookings & Orders
+            </h2>
+            <p class="text-muted mb-0">Manage your table reservations, room stays, banquet bookings, and food delivery orders.</p>
         </div>
     </div>
 
-    <!-- Bookings Sections -->
-    <div class="row">
-        <div class="col-12">
-            {% if bookings %}
-                <div class="table-responsive shadow-sm rounded">
-                    <table class="table table-hover align-middle bg-white mb-0">
-                        <thead class="table-success">
-                            <tr>
-                                <th scope="col">Booking ID</th>
-                                <th scope="col">Type</th>
-                                <th scope="col">Details</th>
-                                <th scope="col">Date / Time</th>
-                                <th scope="col">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for booking in bookings %}
-                            <tr>
-                                <th scope="row">#{{ booking.id }}</th>
-                                <td><span class="badge bg-secondary">{{ booking.get_booking_type_display|default:"Reservation" }}</span></td>
-                                <td>{{ booking.details|default:"N/A" }}</td>
-                                <td>{{ booking.created_at|date:"M d, Y H:i" }}</td>
-                                <td>
-                                    <span class="badge bg-{% if booking.status == 'Confirmed' or booking.status == 'Approved' %}success{% elif booking.status == 'Pending' %}warning text-dark{% else %}danger{% endif %}">
-                                        {{ booking.status|default:"Pending" }}
-                                    </span>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+    <!-- Main Content Container -->
+    <div class="container pb-5">
+
+        <!-- Navigation Tabs for Different Booking Types -->
+        <ul class="nav nav-pills mb-4 gap-2" id="bookingTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-bold" id="tables-tab" data-bs-toggle="pill" data-bs-target="#tables-content" type="button" role="tab">
+                    <i class="fas fa-chair me-1"></i> Table Bookings ({{ table_bookings|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold" id="rooms-tab" data-bs-toggle="pill" data-bs-target="#rooms-content" type="button" role="tab">
+                    <i class="fas fa-bed me-1"></i> Room Stays ({{ room_bookings|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold" id="banquets-tab" data-bs-toggle="pill" data-bs-target="#banquets-content" type="button" role="tab">
+                    <i class="fas fa-glass-cheers me-1"></i> Banquet Bookings ({{ banquet_bookings|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold" id="delivery-tab" data-bs-toggle="pill" data-bs-target="#delivery-content" type="button" role="tab">
+                    <i class="fas fa-motorcycle me-1"></i> Delivery Orders ({{ delivery_orders|length }})
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Contents -->
+        <div class="tab-content" id="bookingTabsContent">
+
+            <!-- 1. Table Bookings Tab -->
+            <div class="tab-pane fade show active" id="tables-content" role="tabpanel">
+                <div class="row g-4">
+                    {% for booking in table_bookings %}
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm h-100 p-3 rounded-3">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge bg-success">Table Reservation</span>
+                                        <small class="text-muted">{{ booking.booking_date|date:"M d, Y" }}</small>
+                                    </div>
+                                    <h5 class="fw-bold text-dark mb-1">{{ booking.restaurant.business_name }}</h5>
+                                    <p class="text-secondary small mb-3"><i class="fas fa-map-marker-alt me-1"></i>{{ booking.restaurant.location|default:"Main Branch" }}</p>
+                                    
+                                    <hr class="text-muted opacity-25">
+                                    
+                                    <p class="mb-1 small"><strong>Table:</strong> {{ booking.space.number|default:booking.space.name|default:"Assigned Table" }}</p>
+                                    <p class="mb-1 small"><strong>Guests:</strong> {{ booking.guests_count }} Guests</p>
+                                    <p class="mb-3 small"><strong>Status:</strong> <span class="text-success fw-semibold">Confirmed</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm text-center py-5 bg-white rounded-3">
+                                <div class="card-body">
+                                    <i class="fas fa-chair fa-3x text-muted mb-3"></i>
+                                    <h4 class="fw-bold text-dark">No Table Bookings Found</h4>
+                                    <p class="text-muted mb-4">You haven't reserved any restaurant tables yet.</p>
+                                    <a href="{% url 'customer_dashboard' %}" class="btn btn-success fw-bold px-4">Explore Dashboard</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
-            {% else %}
-                <div class="text-center py-5 bg-white rounded shadow-sm">
-                    <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
-                    <h5 class="text-secondary">No bookings or orders found.</h5>
-                    <p class="text-muted small">You haven't made any reservations or orders yet.</p>
-                    <a href="{% url 'customer_restaurant_view' %}" class="btn btn-success mt-2">Explore Restaurants</a>
+            </div>
+
+            <!-- 2. Room Stays Tab -->
+            <div class="tab-pane fade" id="rooms-content" role="tabpanel">
+                <div class="row g-4">
+                    {% for booking in room_bookings %}
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm h-100 p-3 rounded-3">
+                                <div class="card-body">
+                                    <span class="badge bg-primary mb-2">Room Stay</span>
+                                    <h5 class="fw-bold text-dark mb-1">{{ booking.restaurant.business_name }}</h5>
+                                    <p class="mb-1 small"><strong>Room:</strong> {{ booking.space.name|default:"Standard Room" }}</p>
+                                    <p class="mb-3 small"><strong>Date:</strong> {{ booking.booking_date }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm text-center py-5 bg-white rounded-3">
+                                <div class="card-body">
+                                    <i class="fas fa-bed fa-3x text-muted mb-3"></i>
+                                    <h4 class="fw-bold text-dark">No Room Bookings Found</h4>
+                                    <p class="text-muted mb-0">You haven't booked any rooms yet.</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
-            {% endif %}
+            </div>
+
+            <!-- 3. Banquet Bookings Tab -->
+            <div class="tab-pane fade" id="banquets-content" role="tabpanel">
+                <div class="row g-4">
+                    {% for booking in banquet_bookings %}
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm h-100 p-3 rounded-3">
+                                <div class="card-body">
+                                    <span class="badge bg-warning text-dark mb-2">Banquet</span>
+                                    <h5 class="fw-bold text-dark mb-1">{{ booking.restaurant.business_name }}</h5>
+                                    <p class="mb-1 small"><strong>Banquet Hall:</strong> {{ booking.space.name }}</p>
+                                    <p class="mb-3 small"><strong>Guests:</strong> {{ booking.guests_count }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm text-center py-5 bg-white rounded-3">
+                                <div class="card-body">
+                                    <i class="fas fa-glass-cheers fa-3x text-muted mb-3"></i>
+                                    <h4 class="fw-bold text-dark">No Banquet Bookings Found</h4>
+                                    <p class="text-muted mb-0">You haven't reserved any banquet spaces yet.</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 4. Delivery Orders Tab -->
+            <div class="tab-pane fade" id="delivery-content" role="tabpanel">
+                <div class="row g-4">
+                    {% for order in delivery_orders %}
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm h-100 p-3 rounded-3">
+                                <div class="card-body">
+                                    <span class="badge bg-info text-dark mb-2">Delivery Order</span>
+                                    <h5 class="fw-bold text-dark mb-1">Order #{{ order.id }}</h5>
+                                    <p class="text-muted small mb-3">Placed on: {{ order.created_at|date:"M d, Y H:i" }}</p>
+                                    <p class="mb-3 small"><strong>Total:</strong> ₹{{ order.total_amount|default:"0.00" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm text-center py-5 bg-white rounded-3">
+                                <div class="card-body">
+                                    <i class="fas fa-motorcycle fa-3x text-muted mb-3"></i>
+                                    <h4 class="fw-bold text-dark">No Delivery Orders Found</h4>
+                                    <p class="text-muted mb-0">You haven't placed any home delivery orders yet.</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
         </div>
+
     </div>
-</div>
-{% endblock %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
