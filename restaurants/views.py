@@ -9,12 +9,9 @@ from django.db.models import Q
 from datetime import datetime
 from .models import Restaurant, MenuItem, Space, Booking, HomeDeliveryOrder
 from django.http import JsonResponse, HttpResponse
-<<<<<<< HEAD
 
 
-# Import all your models in one clean line
-=======
->>>>>>> 03043805c53f36e9bdfa07b943138b22ea8ff7af
+
 from .models import Restaurant, MenuItem, Space
 
 def home_view(request):
@@ -67,10 +64,10 @@ def partner_register_view(request):
             owner_name=owner_name,
             email=email,
             phone_number=phone_number,
-        is_verified=False  # Marked as pending approval
+        is_verified=False  
     )
         
-        # Automatically log the partner in
+    
         login(request, user)
         messages.success(request, "Registration successful! Welcome to your Partner Dashboard.")
         return redirect('partner_dashboard')
@@ -98,7 +95,7 @@ def edit_restaurant_profile(request):
         restaurant.bank_account = request.POST.get('bank_account', restaurant.bank_account)
         restaurant.ifsc_code = request.POST.get('ifsc_code', restaurant.ifsc_code)
 
-        # Update files/documents only if new ones are uploaded
+        
         if request.FILES.get('pan_document'):
             restaurant.pan_document = request.FILES['pan_document']
         if request.FILES.get('gst_document'):
@@ -106,7 +103,7 @@ def edit_restaurant_profile(request):
         if request.FILES.get('fssai_document'):
             restaurant.fssai_document = request.FILES['fssai_document']
 
-        # Update venue section images only if new ones are uploaded
+        
         if request.FILES.get('outside_view'):
             restaurant.outside_view = request.FILES['outside_view']
         if request.FILES.get('inside_view'):
@@ -341,7 +338,7 @@ def customer_table_booking(request, restaurant_id):
             restaurant=restaurant,
             space=space,
             booking_type='table',
-            booking_date=datetime.now(), # Or parse booking_time from request.POST if your form sends a date string
+            booking_date=datetime.now(), 
             guests_count=int(guests)
         )
         messages.success(request, "Table booked successfully!")
@@ -367,18 +364,18 @@ def customer_room_booking(request, restaurant_id):
         checkout = request.POST.get('checkout')
         guests = request.POST.get('guests', 2)
         
-        # New fields from the updated modal form
+        
         booking_name = request.POST.get('booking_name')
         booking_phone = request.POST.get('booking_phone')
         extra_bed = True if request.POST.get('extra_bed') == 'on' else False
-        payment_mode = request.POST.get('payment_mode')        # 'full' or 'advance'
-        advance_amount = request.POST.get('advance_amount')    # calculated amount
-        payment_method = request.POST.get('roomPaymentMethod') # 'UPI' or 'Card'
+        payment_mode = request.POST.get('payment_mode')        
+        advance_amount = request.POST.get('advance_amount')    
+        payment_method = request.POST.get('roomPaymentMethod') 
         
         space = Space.objects.filter(id=space_id).first() if space_id else None
         
-        # Create the booking record in the database
-        # Make sure your Booking model has fields matching these, or adjust accordingly
+    
+        
         Booking.objects.create(
             user=request.user,
             restaurant=restaurant,
@@ -386,32 +383,26 @@ def customer_room_booking(request, restaurant_id):
             booking_type='room',
             booking_date=datetime.now(),
             guests_count=int(guests),
-<<<<<<< HEAD
-            name=booking_name,              # Guest full name
-            phone=booking_phone,            # Guest phone number
-            extra_bed=extra_bed,            # Boolean for extra bed
-            payment_mode=payment_mode,      # Full vs Advance option
-            paid_amount=advance_amount,     # Amount paid online
-            payment_method=payment_method,  # UPI or Card
-            # checkin_date=checkin,         # Uncomment if your model has these fields
-            # checkout_date=checkout,       # Uncomment if your model has these fields
+            name=booking_name,              
+            phone=booking_phone,            
+            extra_bed=extra_bed,            
+            payment_mode=payment_mode,      
+            paid_amount=advance_amount,
+            payment_method=payment_method,  
+                    
+            
             status='Confirmed'
-=======
-            
-        
-            
->>>>>>> 03043805c53f36e9bdfa07b943138b22ea8ff7af
         )
         
         messages.success(request, f"Room reservation confirmed successfully! Advance paid: Rs. {advance_amount}")
         return redirect('customer_bookings')
     
-    # Basic constraints
+    
     checkin_date = request.GET.get('checkin')
     checkout_date = request.GET.get('checkout')
     guest_count = request.GET.get('guests')
     
-    # 1. Advanced Filter Inputs
+    
     room_types = request.GET.getlist('room_type')
     max_price = request.GET.get('max_price')
     sort_by = request.GET.get('sort_by')
@@ -454,7 +445,7 @@ def customer_room_booking(request, restaurant_id):
 
     context = {
         'restaurant': restaurant,
-        'rooms': spaces,  # Updated to match template loop variable {% for room in rooms %}
+        'rooms': spaces,  
         'filters': request.GET,
         'checkin': checkin_date or '',
         'checkout': checkout_date or '',
@@ -505,7 +496,7 @@ def customer_home_delivery(request, restaurant_id):
     cart_data = request.POST.get('cart_data')
     total_amount = request.POST.get('total_amount', 0)
 
-    # Save the order to the database
+    
     HomeDeliveryOrder.objects.create(
         customer=request.user,
         restaurant=restaurant,
@@ -531,7 +522,7 @@ def super_admin_dashboard_view(request):
     restaurants = Restaurant.objects.all()
     pending_restaurants = restaurants.filter(is_verified=False)
     
-    # Handle bulk or individual partner approval from the dashboard
+    
     if request.method == 'POST':
         action_type = request.POST.get('action_type')
         selected_ids = request.POST.getlist('selected_restaurants')
@@ -564,7 +555,7 @@ def customer_bookings_view(request):
         'table_bookings': table_bookings,
         'room_bookings': room_bookings,
         'banquet_bookings': banquet_bookings,
-        'delivery_orders': delivery_orders, # Add this to context
+        'delivery_orders': delivery_orders, 
     }
     return render(request, 'restaurants/customer_bookings.html', context)
 
@@ -579,7 +570,7 @@ def partner_pending_view(request):
 @never_cache
 def logout_view(request):
     logout(request)
-    request.session.flush()  # Clears and destroys the old session data
+    request.session.flush()  
     messages.success(request, "Logged out successfully.")
     return redirect('home')
 
@@ -603,7 +594,6 @@ def delete_restaurant(request, restaurant_id):
     restaurant.delete()
     messages.success(request, f"Restaurant '{restaurant_name}' has been deleted successfully.")
     return redirect('super_admin_dashboard')
-<<<<<<< HEAD
 
 
 
@@ -617,7 +607,7 @@ def password_reset_view(request):
 
 @login_required
 def manage_spaces_by_type(request, space_type):
-    # Add your logic here to filter or manage spaces by type (e.g., table, room, banquet)
+    
     spaces = Space.objects.filter(restaurant=request.user.restaurant, space_type=space_type)
     return render(request, 'restaurants/manage_spaces.html', {'spaces': spaces, 'space_type': space_type})
 
@@ -648,7 +638,7 @@ def cancel_banquet_booking(request, booking_id):
 
 @login_required
 def cancel_delivery_order(request, order_id):
-    # Changed 'user=request.user' to 'customer=request.user' based on your model fields
+    
     order = get_object_or_404(HomeDeliveryOrder, id=order_id, customer=request.user)
     if request.method == 'POST':
         if order.status in ['Order Placed', 'Pending']:
@@ -658,5 +648,3 @@ def cancel_delivery_order(request, order_id):
         else:
             messages.error(request, "Cannot cancel this order as preparation has already started.")
     return redirect('customer_bookings')
-=======
->>>>>>> 03043805c53f36e9bdfa07b943138b22ea8ff7af
