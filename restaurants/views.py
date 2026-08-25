@@ -9,6 +9,7 @@ from django.db.models import Q
 from datetime import datetime
 from .models import Restaurant, MenuItem, Space, Booking, HomeDeliveryOrder
 from django.http import JsonResponse, HttpResponse
+import csv
 
 
 
@@ -664,3 +665,80 @@ def cancel_delivery_order(request, order_id):
         else:
             messages.error(request, "Cannot cancel this order as preparation has already started.")
     return redirect('customer_bookings')
+
+
+@login_required
+def partner_revenue_report_view(request):
+    try:
+        restaurant = Restaurant.objects.get(user=request.user)
+    except Restaurant.DoesNotExist:
+        messages.error(request, "Restaurant profile not found.")
+        return redirect('partner_dashboard')
+    
+    all_bookings = Booking.objects.filter(restaurant=restaurant)
+    deliveries = HomeDeliveryOrder.objects.filter(restaurant=restaurant)
+    
+    #
+    def get_price(obj):
+        for field in ['total_price', 'total_amount', 'price', 'amount', 'cost']:
+            val = getattr(obj, field, None)
+            if val is not None:
+                return val
+        return 0
+
+    
+    tables = []
+    rooms = []
+    banquets = []
+    
+    for b in all_bookings:
+        b.calculated_amount = get_price(b)
+        b_type = str(getattr(b, 'booking_type', getattr(b, 'category', 'table'))).lower()
+        if 'room' in b_type:
+            rooms.append(b)
+        elif 'banquet' in b_type:
+            banquets.append(b)
+        else:
+            tables.append(b)
+            
+    for d in deliveries:
+        d.calculated_amount = get_price(d)
+
+    total_table_revenue = sum(t.calculated_amount for t in tables)
+    total_delivery_revenue = sum(d.calculated_amount for d in deliveries)
+    total_room_revenue = sum(r.calculated_amount for r in rooms)
+    total_banquet_revenue = sum(b.calculated_amount for b in banquets)
+    
+    overall_revenue = total_table_revenue + total_delivery_revenue + total_room_revenue + total_banquet_revenu
+
+    if request.GET.get('export') == 'csv':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="{restaurant.business_name}_Revenue_Report.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow(['Section', 'Booking/Order ID', 'Customer Name', 'Payment Status', 'Amount', 'Date'])
+        
+        for t in tables:
+            writer.writerow(['Table Booking', t.id, getattr(t, 'customer_name', 'Customer'), 'Paid', t.calculated_amount, getattr(t, 'created_at', '')])
+        for d in deliveries:
+            writer.writerow(['Home Delivery', d.id, getattr(d, 'customer_name', 'Customer'), 'Paid', d.calculated_amount, getattr(d, 'created_at', '')])
+        for r in rooms:
+            writer.writerow(['Room Booking', r.id, getattr(r, 'customer_name', 'Customer'), 'Paid', r.calculated_amount, getattr(r, 'created_at', '')])
+        for b in banquets:
+            writer.writerow(['Banquet Booking', b.id, getattr(b, 'customer_name', 'Customer'), 'Paid', b.calculated_amount, getattr(b, 'created_at', '')])
+            
+        return response
+
+    context = {
+        'restaurant': restaurant,
+        'tables': tables,
+        'deliveries': deliveries,
+        'rooms': rooms,
+        'banquets': banquets,
+        'total_table_revenue': total_table_revenue,
+        'total_delivery_revenue': total_delivery_revenue,
+        'total_room_revenue': total_room_revenue,
+        'total_banquet_revenue': total_banquet_revenue,
+        'overall_revenue': overall_revenue,
+    }
+    return render(request, 'restaurants/partner_revenue_report.html', context)
