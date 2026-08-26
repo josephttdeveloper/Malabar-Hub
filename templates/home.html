@@ -23,11 +23,23 @@
             transform: translateY(-5px);
             box-shadow: 0 1rem 3rem rgba(0,0,0,.1) !important;
         }
+        .demo-preview-box {
+            background: linear-gradient(135deg, #198754, #157347);
+            color: white;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .testimonial-card {
+            border-radius: 16px;
+            border: none;
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
     </style>
 </head>
 <body class="bg-light">
 
-    
+    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4 py-3 shadow-sm">
         <div class="container-fluid">
             <a class="navbar-brand fw-bold text-warning" href="{% url 'home' %}">
@@ -41,19 +53,65 @@
         </div>
     </nav>
 
-    
+    <!-- Hero Section -->
     <div class="hero-section text-center shadow">
         <div class="container">
             <h1 class="display-4 fw-bold mb-3">Discover the Best of Hospitality</h1>
-            <p class="lead mb-4 text-light opacity-85">Your ultimate destination for seamless Table Bookings, Room Accommodations, Banquet Events, and Home Delivery.</p>
+            <p class="lead mb-4 text-light opacity-85 col-lg-8 mx-auto">Your ultimate destination for seamless Table Bookings, Room Accommodations, Banquet Events, and Home Delivery.</p>
             
-            <a href="{% url 'get_started' %}" class="btn btn-success btn-lg px-5 py-3 fw-bold shadow-lg rounded-pill">
+            <a href="{% url 'get_started' %}" class="btn btn-success btn-lg px-5 py-3 fw-bold shadow-lg rounded-pill mb-3">
                 <i class="fas fa-compass me-2"></i> Explore Services Now
             </a>
+
+            <!-- Trust Badges -->
+            <div class="d-flex justify-content-center flex-wrap gap-4 mt-3 text-light small opacity-75">
+                <span><i class="fas fa-check-circle text-success me-1"></i> Free for up to 100 bookings monthly</span>
+                <span><i class="fas fa-check-circle text-success me-1"></i> No credit card required</span>
+                <span><i class="fas fa-check-circle text-success me-1"></i> Instant digital management</span>
+            </div>
         </div>
     </div>
 
-    
+    <!-- About Us Section (Newly Added) -->
+    <div class="container py-5 my-3">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <div class="position-relative">
+                    <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80" alt="About Malabar Hub" class="img-fluid rounded-4 shadow-sm">
+                    <div class="position-absolute bottom-0 start-0 bg-success text-white p-4 m-3 rounded-4 shadow d-none d-sm-block">
+                        <h3 class="fw-bold mb-0">100%</h3>
+                        <p class="small mb-0">Digital Operations & Support</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <span class="badge bg-success-subtle text-success mb-2 px-3 py-2 fw-bold rounded-pill">About Malabar Hub</span>
+                <h2 class="fw-bold text-dark mb-3">Bridging Guests and Local Hospitality with Excellence</h2>
+                <p class="text-muted mb-4">
+                    Malabar Hub is a comprehensive ecosystem designed to transform how restaurants, hotels, and event venues manage their day-to-day operations while delivering world-class experiences to guests. 
+                </p>
+                <p class="text-muted mb-4">
+                    Whether you are looking to reserve a dining table, book an overnight stay, plan a grand banquet celebration, or get authentic dishes delivered straight to your doorstep, our platform unifies everything under a single, user-friendly portal.
+                </p>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success fs-4 me-2"></i>
+                            <h6 class="fw-bold mb-0 text-dark">Unified Management</h6>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success fs-4 me-2"></i>
+                            <h6 class="fw-bold mb-0 text-dark">Verified Partners</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- What We Offer Section -->
     <div class="container py-5 my-3">
         <div class="text-center mb-5">
             <h2 class="fw-bold text-dark">What We Offer</h2>
@@ -100,7 +158,179 @@
         </div>
     </div>
 
-    
+    <!-- Platform Value Highlights -->
+    <div class="container py-4">
+        <div class="row align-items-center bg-white rounded-4 shadow-sm p-5 g-5">
+            <div class="col-lg-6">
+                <span class="badge bg-success-subtle text-success mb-2 px-3 py-2 fw-bold rounded-pill">Smart Management</span>
+                <h2 class="fw-bold text-dark mb-4">Ditch the Pen & Paper. Go Digital.</h2>
+                
+                <div class="d-flex mb-3">
+                    <div class="text-success fs-4 me-3"><i class="fas fa-shield-alt"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Zero Missed Bookings</h6>
+                        <p class="text-muted small mb-0">Manage walk-ins, phone-ins, and online reservations smoothly from one unified dashboard.</p>
+                    </div>
+                </div>
+                
+                <div class="d-flex mb-3">
+                    <div class="text-success fs-4 me-3"><i class="fas fa-bell"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Automated Tracking & Reminders</h6>
+                        <p class="text-muted small mb-0">Reduce no-shows and keep your customer schedules synchronized automatically.</p>
+                    </div>
+                </div>
+
+                <div class="d-flex">
+                    <div class="text-success fs-4 me-3"><i class="fas fa-chart-pie"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Real-Time Revenue Analytics</h6>
+                        <p class="text-muted small mb-0">Track earnings, evaluate trends, and export complete reports with a single click.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="p-4 bg-light rounded-4 border">
+                    <i class="fas fa-laptop-code text-success display-1 mb-3"></i>
+                    <h4 class="fw-bold text-dark">Partner Dashboard Ready</h4>
+                    <p class="text-muted small">Everything structured cleanly for restaurant owners, hotel managers, and event hosts.</p>
+                    <a href="{% url 'login' %}" class="btn btn-outline-success fw-semibold mt-2">Access Partner Portal</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works / Demo Section -->
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-success">How It Works</h2>
+            <p class="text-muted">Get started with Malabar Hub in three simple steps.</p>
+        </div>
+
+        <div class="row g-4 text-center mb-5">
+            <div class="col-md-4">
+                <div class="card feature-card shadow-sm p-4 h-100 bg-white">
+                    <div class="rounded-circle bg-success text-white fs-3 d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">1</div>
+                    <h5 class="fw-bold text-dark">Explore & Choose</h5>
+                    <p class="text-muted small">Browse through top-rated local partner restaurants, view menus, or check available spaces for tables, rooms, and banquets.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card feature-card shadow-sm p-4 h-100 bg-white">
+                    <div class="rounded-circle bg-success text-white fs-3 d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">2</div>
+                    <h5 class="fw-bold text-dark">Book or Order Instantly</h5>
+                    <p class="text-muted small">Select your preferred slot, customize your home delivery order, or reserve accommodation securely with live tracking.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card feature-card shadow-sm p-4 h-100 bg-white">
+                    <div class="rounded-circle bg-success text-white fs-3 d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">3</div>
+                    <h5 class="fw-bold text-dark">Enjoy Your Experience</h5>
+                    <p class="text-muted small">Relish fresh home-delivered meals or check into your reserved dining and venue spaces effortlessly.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Demo Banner Showcase -->
+        <div class="p-5 demo-preview-box shadow-lg text-center">
+            <div class="row align-items-center">
+                <div class="col-lg-8 text-lg-start mb-4 mb-lg-0">
+                    <span class="badge bg-warning text-dark mb-2 px-3 py-2 fw-bold rounded-pill">Live System Preview</span>
+                    <h3 class="fw-bold mb-2">Want to manage your own establishment?</h3>
+                    <p class="mb-0 text-light opacity-85">Partners get access to a full suite including KYC document management, live delivery tracking, space configurations, and revenue reporting dashboards.</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <a href="{% url 'login' %}" class="btn btn-light text-success btn-lg px-4 py-3 fw-bold shadow rounded-pill">
+                        <i class="fas fa-laptop-code me-2"></i> Try Partner Demo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Partner Testimonials -->
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-dark">Trusted by Local Businesses</h2>
+            <p class="text-muted">See what partner managers and venue owners have to say.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card testimonial-card p-4 h-100">
+                    <div class="text-warning mb-2">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-muted small mb-4">"It was a much-needed tool for our restaurant operations. Managing tables and tracking delivery orders from a single dashboard saved us countless hours."</p>
+                    <h6 class="fw-bold mb-0">Muhammed Asif</h6>
+                    <small class="text-muted">Operations Manager, Malabar Bistro</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card testimonial-card p-4 h-100">
+                    <div class="text-warning mb-2">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-muted small mb-4">"The room and banquet booking features are exceptionally well-built. Our reservation staff picked up the system in minutes without any training hassle."</p>
+                    <h6 class="fw-bold mb-0">Rahul Das</h6>
+                    <small class="text-muted">General Manager, Horizon Stays</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card testimonial-card p-4 h-100">
+                    <div class="text-warning mb-2">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-muted small mb-4">"Generating financial reports and handling partner KYC documents used to be messy. This platform streamlined everything cleanly."</p>
+                    <h6 class="fw-bold mb-0">Fathima Sherin</h6>
+                    <small class="text-muted">Owner, Spice Route Events</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guest Reviews Section -->
+    <div class="container py-5 mb-4">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-dark">Loved by Our Guests</h2>
+            <p class="text-muted">Hear from diners, travelers, and event attendees who use Malabar Hub.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card testimonial-card p-4 h-100">
+                    <div class="text-warning mb-2">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-muted small mb-4">"Booking a table for our family weekend dinner was completely hassle-free. Got instant confirmation and wonderful service at the restaurant!"</p>
+                    <h6 class="fw-bold mb-0">Anshad K.</h6>
+                    <small class="text-muted">Verified Diner</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card testimonial-card p-4 h-100">
+                    <div class="text-warning mb-2">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-muted small mb-4">"The home delivery option arrived right on time, and the food was steaming hot. Exceptional experience using the platform!"</p>
+                    <h6 class="fw-bold mb-0">Divya Menon</h6>
+                    <small class="text-muted">Regular Food Delivery Customer</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card testimonial-card p-4 h-100">
+                    <div class="text-warning mb-2">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-muted small mb-4">"We booked our annual corporate banquet seamlessly through Malabar Hub. Everything from scheduling to space allocation went off without a hitch."</p>
+                    <h6 class="fw-bold mb-0">Sreejith Nambiar</h6>
+                    <small class="text-muted">Event Organizer</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
     <footer class="bg-dark text-white text-center py-4 mt-5">
         <div class="container">
             <p class="mb-0 text-muted small">&copy; 2026 Malabar Hub. All rights reserved.</p>

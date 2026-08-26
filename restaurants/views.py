@@ -55,9 +55,7 @@ def partner_register_view(request):
             messages.error(request, "An account with this email already exists.")
             return redirect('partner_register')
 
-        
         user = User.objects.create_user(username=email, email=email, password=password, first_name=business_name)
-        
         
         Restaurant.objects.create(
             user=user,
@@ -65,10 +63,9 @@ def partner_register_view(request):
             owner_name=owner_name,
             email=email,
             phone_number=phone_number,
-        is_verified=False  
-    )
+            is_verified=False  # Properly aligned inside the create() call
+        )
         
-    
         login(request, user)
         messages.success(request, "Registration successful! Welcome to your Partner Dashboard.")
         return redirect('partner_dashboard')
@@ -185,44 +182,41 @@ def login_view(request):
             except Restaurant.DoesNotExist:
                 return redirect('customer_dashboard')
         else:
+            # Clear any leftover/stale messages from the session before adding a new one
+            storage = messages.get_messages(request)
+            storage.used = True 
+            
             messages.error(request, "Invalid email or password.")
             return redirect('login')
 
     return render(request, 'restaurants/login.html')
 
-
 @login_required
-def manage_spaces_view(request, space_type=None):
-    try:
-        restaurant = Restaurant.objects.get(user=request.user)
-    except Restaurant.DoesNotExist:
-        messages.error(request, "Restaurant profile not found.")
-        return redirect('partner_dashboard')
-
-    if not space_type:
-        space_type = 'room'
-
+def manage_spaces_view(request, space_type='all'):
+    restaurant = get_object_or_404(Restaurant, user=request.user) 
+    
+    # Normalize space_type to lowercase to prevent matching bugs
+    space_type = space_type.lower() if space_type else 'all'
+    
     if request.method == 'POST':
         name = request.POST.get('name')
-        stype = request.POST.get('space_type', space_type)
+        stype = request.POST.get('space_type', space_type).lower()
         capacity = request.POST.get('capacity')
         price_per_slot = request.POST.get('price_per_slot', 0.00)
         description = request.POST.get('description', '')
         
-        
         seating_category = request.POST.get('seating_category', '')
         view_tag = request.POST.get('view_tag', '')
-        
-    
-        image = request.FILES.get('image')
-        
+        amenities_list = request.POST.getlist('amenities')
         
         extra_details = []
         if seating_category:
             extra_details.append(f"Category: {seating_category}")
         if view_tag:
             extra_details.append(f"View/Bed/Setup: {view_tag}")
-        
+        if amenities_list:
+            extra_details.append(f"Amenities: {', '.join(amenities_list)}")
+            
         combined_description = " | ".join(extra_details)
         if description:
             combined_description = f"{combined_description} - {description}" if combined_description else description
@@ -233,22 +227,23 @@ def manage_spaces_view(request, space_type=None):
             space_type=stype,
             capacity=capacity,
             price_per_slot=price_per_slot,
-            image=image,  # Save the uploaded file here
+            image=request.FILES.get('image'),
             description=combined_description
         )
         
         messages.success(request, f"{stype.title()} '{name}' added successfully!")
         return redirect('manage_spaces_by_type', space_type=stype)
 
-    spaces = Space.objects.filter(restaurant=restaurant, space_type=space_type)
+    if space_type and space_type != 'all':
+        spaces = Space.objects.filter(restaurant=restaurant, space_type=space_type)
+    else:
+        spaces = Space.objects.filter(restaurant=restaurant)
 
-    return render(request, 'restaurants/manage_spaces.html', {
-        'restaurant': restaurant, 
-        'spaces': spaces, 
-        'selected_type': space_type
-    })
-
-
+    context = {
+        'spaces': spaces,
+        'selected_type': space_type,  # This directly powers your template conditionals
+    }
+    return render(request, 'restaurants/manage_spaces.html', context)
 
 def manage_delivery_view(request):
     try:
@@ -479,13 +474,14 @@ def customer_banquet_booking(request, restaurant_id):
         
     context = {
         'restaurant': restaurant,
-        'spaces': spaces,
+        'banquet_spaces': spaces,
     }
-    return render(request, 'restaurants/customer_bookings.html' if False else 'restaurants/customer_banquet_booking.html', context)
+    return render(request, 'restaurants/customer_banquet_booking.html', context)
 
 
-login_required
+@login_required
 def customer_home_delivery(request, restaurant_id):
+
   restaurant = get_object_or_404(Restaurant, id=restaurant_id)
   menu_items = MenuItem.objects.filter(restaurant=restaurant)
 
@@ -624,9 +620,14 @@ def password_reset_view(request):
 
 @login_required
 def manage_spaces_by_type(request, space_type):
-    
-    spaces = Space.objects.filter(restaurant=request.user.restaurant, space_type=space_type)
-    return render(request, 'restaurants/manage_spaces.html', {'spaces': spaces, 'space_type': space_type})
+    try:
+        restaurant = Restaurant.objects.get(user=request.user)
+    except Restaurant.DoesNotExist:
+        messages.error(request, "Restaurant profile not found.")
+        return redirect('partner_dashboard')
+        
+    spaces = Space.objects.filter(restaurant=restaurant, space_type=space_type)
+    return render(request, 'restaurants/manage_spaces.html', {'restaurant': restaurant, 'spaces': spaces, 'space_type': space_type})
 
 
 @login_required
@@ -678,7 +679,7 @@ def partner_revenue_report_view(request):
     all_bookings = Booking.objects.filter(restaurant=restaurant)
     deliveries = HomeDeliveryOrder.objects.filter(restaurant=restaurant)
     
-    #
+    
     def get_price(obj):
         for field in ['total_price', 'total_amount', 'price', 'amount', 'cost']:
             val = getattr(obj, field, None)
@@ -709,7 +710,7 @@ def partner_revenue_report_view(request):
     total_room_revenue = sum(r.calculated_amount for r in rooms)
     total_banquet_revenue = sum(b.calculated_amount for b in banquets)
     
-    overall_revenue = total_table_revenue + total_delivery_revenue + total_room_revenue + total_banquet_revenu
+    overall_revenue = total_table_revenue + total_delivery_revenue + total_room_revenue + total_banquet_revenue
 
     if request.GET.get('export') == 'csv':
         response = HttpResponse(content_type='text/csv')
@@ -742,3 +743,29 @@ def partner_revenue_report_view(request):
         'overall_revenue': overall_revenue,
     }
     return render(request, 'restaurants/partner_revenue_report.html', context)
+
+
+@login_required
+def toggle_pause_orders(request):
+    try:
+        restaurant = Restaurant.objects.get(user=request.user)
+        restaurant.is_accepting_orders = not restaurant.is_accepting_orders
+        restaurant.save()
+        
+        if restaurant.is_accepting_orders:
+            messages.success(request, "Orders have been resumed successfully.")
+        else:
+            messages.warning(request, "All delivery orders have been paused.")
+    except Restaurant.DoesNotExist:
+        messages.error(request, "Restaurant profile not found.")
+        
+    return redirect('manage_delivery') # Ensure this matches your URL name for this pag
+
+
+def toggle_menu_item(request, item_id):
+    item = get_object_or_404(MenuItem, id=item_id)
+    item.is_available = not item.is_available
+    item.save()
+    status_text = "In Stock" if item.is_available else "Out of Stock"
+    messages.success(request, f"'{item.name}' status updated to {status_text}.")
+    return redirect('manage_delivery')

@@ -20,6 +20,7 @@
     <div class="container-fluid">
         <div class="row">
             
+            <!-- Sidebar Navigation -->
             <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse p-3">
                 <div class="d-flex align-items-center mb-4 mt-2">
                     <span class="fs-4 fw-bold text-white">🏢 Malabar Hub</span>
@@ -32,7 +33,7 @@
                 </ul>
             </nav>
 
-            
+            <!-- Main Content Area -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
                 <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
                     <h2 class="fw-bold text-dark">Manage Delivery Menu & Active Orders</h2>
@@ -50,10 +51,11 @@
 
                 <div class="row g-4">
                     
+                    <!-- Left Column: Add New Food Item Form -->
                     <div class="col-lg-5">
                         <div class="card shadow-sm p-4">
                             <h5 class="fw-bold mb-3 text-success"><i class="fas fa-plus-circle me-2"></i> Form: Add New Food Item</h5>
-                            <form method="POST">
+                            <form method="POST" action="">
                                 {% csrf_token %}
                                 
                                 <div class="mb-3">
@@ -131,13 +133,19 @@
                         </div>
                     </div>
 
-                    
+                    <!-- Right Column: Live Menu Inventory Table -->
                     <div class="col-lg-7">
                         <div class="card shadow-sm p-4 h-100">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h5 class="fw-bold mb-0">Live Menu Inventory</h5>
                                 <div class="operations-panel">
-                                    <button class="btn btn-sm btn-outline-warning fw-bold"><i class="fas fa-pause me-1"></i> Pause All Orders</button>
+                                    <!-- Updated Form Wrapping for Pause Orders Toggle -->
+                                    <form action="{% url 'toggle_pause_orders' %}" method="POST" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-warning fw-bold">
+                                            <i class="fas fa-pause me-1"></i> Toggle Pause Orders
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
 
@@ -169,10 +177,22 @@
                                                 {% endif %}
                                             </td>
                                             <td class="text-center">
-                                                <form action="#" method="POST" onsubmit="return confirm('Remove item?');">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
-                                                </form>
+                                                <div class="d-flex justify-content-center gap-2">
+                                                    <!-- Status Toggle Form -->
+                                                    <form action="{% url 'toggle_menu_item' item.id %}" method="POST" class="d-inline">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="Toggle Stock">
+                                                            <i class="fas fa-sync-alt"></i>
+                                                        </button>
+                                                    </form>
+                                                    <!-- Delete Item Form -->
+                                                    <form action="{% url 'delete_menu_item' item.id %}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this item?');">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Item">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </td>
                                         </tr>
                                         {% empty %}

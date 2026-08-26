@@ -33,6 +33,7 @@ class Restaurant(models.Model):
     bar_images = models.ImageField(upload_to='restaurant_images/', blank=True, null=True)
     
     is_verified = models.BooleanField(default=False)
+    is_accepting_orders = models.BooleanField(default=True)  # <-- Added field to track pause/resume state
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
@@ -46,7 +47,6 @@ class Restaurant(models.Model):
 
     def __str__(self):
         return f"{self.business_name} ({'Verified' if self.is_verified else 'Pending'})"
-
 
 
 
@@ -87,6 +87,7 @@ class Space(models.Model):
     space_type = models.CharField(max_length=50, choices=SPACE_TYPES, default='table')
     capacity = models.PositiveIntegerField(default=4)  # Number of people it seats/holds
     price_per_slot = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)  # For rooms/halls
+    image = models.ImageField(upload_to='spaces/', blank=True, null=True)  # Added to support image uploads
     is_available = models.BooleanField(default=True)
     description = models.TextField(blank=True)
 

@@ -6,11 +6,9 @@
     <title>Room Booking & Filters</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-light">
-
 
 <div class="bg-success text-white py-3 shadow-sm mb-4">
     <div class="container d-flex justify-content-between align-items-center">
@@ -22,7 +20,7 @@
 </div>
 
 <div class="container my-4">
-    
+    <!-- Filter Section -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body p-4">
             <h5 class="fw-bold text-dark mb-3"><i class="fas fa-filter text-success me-2"></i>Filter Available Rooms</h5>
@@ -30,11 +28,11 @@
                 <div class="row g-3">
                     <div class="col-md-3">
                         <label class="form-label small fw-bold text-secondary">Check-in Date</label>
-                        <input type="date" name="checkin" class="form-control" value="{{ checkin|default:'' }}">
+                        <input type="date" name="checkin" id="filter-checkin" class="form-control" value="{{ checkin|default:'' }}">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label small fw-bold text-secondary">Check-out Date</label>
-                        <input type="date" name="checkout" class="form-control" value="{{ checkout|default:'' }}">
+                        <input type="date" name="checkout" id="filter-checkout" class="form-control" value="{{ checkout|default:'' }}">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label small fw-bold text-secondary">Guests</label>
@@ -64,13 +62,22 @@
         </div>
     </div>
 
-    
+    <!-- Available Rooms Listing -->
     <h4 class="fw-bold text-dark mb-3"><i class="fas fa-bed text-success me-2"></i>Available Rooms</h4>
     
     <div class="row g-4">
         {% for room in rooms %}
         <div class="col-md-4">
             <div class="card shadow-sm border-0 h-100">
+                <!-- Dynamic Room Image Display -->
+                {% if room.image %}
+                    <img src="{{ room.image.url }}" class="card-img-top" alt="{{ room.name }}" style="height: 180px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-light text-muted d-flex align-items-center justify-content-center border-bottom" style="height: 180px;">
+                        <i class="fas fa-bed fa-2x text-secondary"></i>
+                    </div>
+                {% endif %}
+
                 <div class="card-body d-flex flex-column justify-content-between p-4">
                     <div>
                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -91,9 +98,12 @@
             </div>
         </div>
         {% empty %}
-        
+        <!-- Default sample mock cards if list is empty -->
         <div class="col-md-4">
             <div class="card shadow-sm border-0 h-100">
+                <div class="bg-light text-muted d-flex align-items-center justify-content-center border-bottom" style="height: 180px;">
+                    <i class="fas fa-bed fa-2x text-secondary"></i>
+                </div>
                 <div class="card-body d-flex flex-column justify-content-between p-4">
                     <div>
                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -115,6 +125,9 @@
         </div>
         <div class="col-md-4">
             <div class="card shadow-sm border-0 h-100">
+                <div class="bg-light text-muted d-flex align-items-center justify-content-center border-bottom" style="height: 180px;">
+                    <i class="fas fa-bed fa-2x text-secondary"></i>
+                </div>
                 <div class="card-body d-flex flex-column justify-content-between p-4">
                     <div>
                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -138,17 +151,14 @@
     </div>
 </div>
 
-
+<!-- Booking Modal -->
 <div class="modal fade" id="roomBookingModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
             
-            <form method="POST" action="">
+            <form method="POST" action="" id="room-booking-form">
                 {% csrf_token %}
                 <input type="hidden" name="space_id" id="modal-space-id" value="">
-                <input type="hidden" name="checkin" id="modal-checkin-input" value="">
-                <input type="hidden" name="checkout" id="modal-checkout-input" value="">
-                <input type="hidden" name="guests" id="modal-guests-input" value="">
                 <input type="hidden" name="advance_amount" id="modal-advance-hidden" value="">
 
                 <div class="modal-header bg-white border-bottom py-3">
@@ -161,7 +171,29 @@
                 <div class="modal-body p-4 bg-white">
                     <div class="row g-4">
                         
+                        <!-- Left Side Inputs -->
                         <div class="col-lg-7">
+                            <h6 class="fw-bold text-dark mb-3"><i class="fas fa-calendar-alt text-success me-2"></i>Reservation Dates & Guests</h6>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold small text-secondary">Check-in Date</label>
+                                    <input type="date" name="checkin" id="modal-checkin-input" class="form-control" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold small text-secondary">Check-out Date</label>
+                                    <input type="date" name="checkout" id="modal-checkout-input" class="form-control" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold small text-secondary">Guests</label>
+                                    <select name="guests" id="modal-guests-input" class="form-select">
+                                        <option value="1">1 Guest</option>
+                                        <option value="2">2 Guests</option>
+                                        <option value="3">3 Guests</option>
+                                        <option value="4">4+ Guests</option>
+                                    </select>
+                                </div>
+                            </div>
+
                             <h6 class="fw-bold text-dark mb-3"><i class="fas fa-user-circle text-success me-2"></i>Guest Identity</h6>
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
@@ -170,7 +202,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold small text-secondary">Contact Number</label>
-                                    <input type="text" name="booking_phone" class="form-control" placeholder="Enter contact number" required>
+                                    <input type="tel" name="booking_phone" class="form-control" placeholder="Enter contact number" required>
                                 </div>
                             </div>
 
@@ -182,7 +214,6 @@
                                 </label>
                             </div>
 
-                            
                             <h6 class="fw-bold text-dark mb-3"><i class="fas fa-wallet text-success me-2"></i>Payment Structure</h6>
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
@@ -224,7 +255,7 @@
                             </div>
                         </div>
 
-                        
+                        <!-- Right Side Summary Invoice -->
                         <div class="col-lg-5">
                             <div class="card shadow-sm border bg-light h-100">
                                 <div class="card-body p-4 d-flex flex-column justify-content-between">
@@ -282,7 +313,7 @@
 
                 <div class="modal-footer bg-light py-3">
                     <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success px-5 fw-bold">
+                    <button type="submit" class="btn btn-success px-5 fw-bold" id="confirm-booking-btn">
                         Confirm & Reserve Room <i class="fas fa-check ms-1"></i>
                     </button>
                 </div>
@@ -302,34 +333,42 @@
         document.getElementById('summary-room-name').innerText = roomName;
         document.getElementById('modal-space-id').value = roomId;
 
-        // Grab values from the search filter bar at the top
-        const checkinVal = document.querySelector('input[name="checkin"]').value;
-        const checkoutVal = document.querySelector('input[name="checkout"]').value;
+        const checkinVal = document.getElementById('filter-checkin').value;
+        const checkoutVal = document.getElementById('filter-checkout').value;
         const guestsVal = document.querySelector('select[name="guests"]').value;
 
-        
         const today = new Date().toISOString().split('T')[0];
         const tomorrowObj = new Date();
         tomorrowObj.setDate(tomorrowObj.getDate() + 1);
         const tomorrow = tomorrowObj.toISOString().split('T')[0];
 
         const finalCheckin = checkinVal || today;
-        const finalCheckout = checkoutVal || tomorrow;
+        const finalCheckout = checkoutVal || (checkinVal ? new Date(new Date(checkinVal).setDate(new Date(checkinVal).getDate() + 1)).toISOString().split('T')[0] : tomorrow);
 
-        
         document.getElementById('modal-checkin-input').value = finalCheckin;
         document.getElementById('modal-checkout-input').value = finalCheckout;
         document.getElementById('modal-guests-input').value = guestsVal;
 
-        
-        document.getElementById('summary-checkin-display').innerText = formatDateDisplay(finalCheckin);
-        document.getElementById('summary-checkout-display').innerText = formatDateDisplay(finalCheckout);
-        document.getElementById('summary-guests-display').innerText = guestsVal + (guestsVal > 1 ? ' Guests' : ' Guest');
+        document.getElementById('modal-checkin-input').min = today;
+        updateMinCheckoutDate();
 
         recalculateRoomBill();
 
         let myModal = new bootstrap.Modal(document.getElementById('roomBookingModal'));
         myModal.show();
+    }
+
+    function updateMinCheckoutDate() {
+        const checkinInput = document.getElementById('modal-checkin-input').value;
+        if (checkinInput) {
+            let nextDay = new Date(checkinInput);
+            nextDay.setDate(nextDay.getDate() + 1);
+            document.getElementById('modal-checkout-input').min = nextDay.toISOString().split('T')[0];
+            
+            if (document.getElementById('modal-checkout-input').value <= checkinInput) {
+                document.getElementById('modal-checkout-input').value = nextDay.toISOString().split('T')[0];
+            }
+        }
     }
 
     function calculateNights() {
@@ -348,12 +387,22 @@
         if (!dateString) return '';
         const parts = dateString.split('-');
         if (parts.length === 3) {
-            return `${parts[1]}/${parts[2]}/${parts[0]}`; 
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
         }
         return dateString;
     }
 
     function recalculateRoomBill() {
+        updateMinCheckoutDate();
+        
+        let checkinVal = document.getElementById('modal-checkin-input').value;
+        let checkoutVal = document.getElementById('modal-checkout-input').value;
+        let guestsVal = document.getElementById('modal-guests-input').value;
+
+        document.getElementById('summary-checkin-display').innerText = formatDateDisplay(checkinVal);
+        document.getElementById('summary-checkout-display').innerText = formatDateDisplay(checkoutVal);
+        document.getElementById('summary-guests-display').innerText = guestsVal + (guestsVal > 1 ? ' Guests' : ' Guest');
+
         let nights = calculateNights();
         let roomTotal = activeRoomPrice * nights;
         
@@ -375,13 +424,12 @@
         let grandTotal = roomTotal + bedTotal;
         document.getElementById('summary-grand-total').innerText = grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
 
-        
         let isAdvance = document.getElementById('pay-advance').checked;
         let advanceRow = document.getElementById('advance-payable-row');
         let balanceText = document.getElementById('balance-due-text');
 
         if (isAdvance) {
-            let advanceAmt = grandTotal * 0.30; // 30% advance rule
+            let advanceAmt = grandTotal * 0.30;
             let balanceAmt = grandTotal - advanceAmt;
             document.getElementById('summary-advance-total').innerText = advanceAmt.toLocaleString('en-IN', {minimumFractionDigits: 2});
             document.getElementById('summary-balance-total').innerText = balanceAmt.toLocaleString('en-IN', {minimumFractionDigits: 2});
@@ -395,10 +443,18 @@
         }
     }
 
-    
+    document.getElementById('modal-checkin-input').addEventListener('change', recalculateRoomBill);
+    document.getElementById('modal-checkout-input').addEventListener('change', recalculateRoomBill);
+    document.getElementById('modal-guests-input').addEventListener('change', recalculateRoomBill);
     document.getElementById('extra-bed-checkbox').addEventListener('change', recalculateRoomBill);
     document.getElementById('pay-full').addEventListener('change', recalculateRoomBill);
     document.getElementById('pay-advance').addEventListener('change', recalculateRoomBill);
+
+    document.getElementById('room-booking-form').addEventListener('submit', function() {
+        const btn = document.getElementById('confirm-booking-btn');
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing...`;
+    });
 </script>
 </body>
 </html>

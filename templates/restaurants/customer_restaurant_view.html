@@ -13,7 +13,6 @@
 </head>
 <body class="bg-light">
 
-    
     <nav class="navbar navbar-dark bg-success shadow-sm py-3 sticky-top">
         <div class="container">
             <a class="navbar-brand fw-bold" href="{% url 'customer_dashboard' %}"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</a>
@@ -31,7 +30,6 @@
             </div>
         </div>
 
-        
         <div class="row g-4 mb-5">
             <div class="col-md-3 col-sm-6">
                 <a href="{% url 'customer_table_booking' restaurant.id %}" class="text-decoration-none">
@@ -74,11 +72,7 @@
             </div>
         </div>
 
-<<<<<<< HEAD
-        
-=======
-        <!-- 3. Venue Section Images Gallery -->
->>>>>>> 03043805c53f36e9bdfa07b943138b22ea8ff7af
+        <!-- Venue Section Images Gallery -->
         {% if restaurant.outside_view or restaurant.inside_view or restaurant.table_images or restaurant.room_images or restaurant.banquet_images or restaurant.rooftop_images or restaurant.bar_images %}
         <div class="mb-5">
             <h4 class="fw-bold text-dark mb-3"><i class="fas fa-images text-success me-2"></i> Gallery & Highlights</h4>

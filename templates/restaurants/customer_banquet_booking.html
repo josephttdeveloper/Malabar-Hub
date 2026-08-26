@@ -1,276 +1,194 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Banquet Hall Booking</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-light">
+{% extends 'restaurants/base.html' %}
 
+{% block title %}Banquet Booking - {{ restaurant.name|default:"Restaurant" }}{% endblock %}
 
+{% block content %}
 <div class="bg-success text-white py-3 shadow-sm mb-4">
     <div class="container d-flex justify-content-between align-items-center">
         <a href="javascript:history.back()" class="text-white text-decoration-none fw-bold">
-            <i class="fas fa-arrow-left me-1"></i> Back to Restaurant
+            <i class="fas fa-arrow-left me-1"></i> Back to {{ restaurant.name|default:"Restaurant" }} Dashboard
         </a>
-        <span class="fw-semibold">Ramees - Banquet Halls</span>
+        <span class="fw-semibold">{{ restaurant.name|default:"Restaurant" }} - Banquet Booking</span>
     </div>
 </div>
 
 <div class="container my-4">
-    <div class="row g-4">
-        
-        
+    <!-- Header Section -->
+    <div class="p-4 mb-4 bg-white rounded shadow-sm border">
+        <h2 class="text-success fw-bold">Reserve a Banquet Hall at {{ restaurant.name|default:"Restaurant" }}</h2>
+        <p class="text-muted mb-0">Select your preferred banquet space, customize your catering preferences, and secure your event slot below.</p>
+    </div>
+
+    <!-- Restaurant Banner Image -->
+    {% if restaurant.image %}
+    <div class="card mb-4 shadow-sm border-0 overflow-hidden">
+        <img src="{{ restaurant.image.url }}" class="card-img-top" alt="Banquet View" style="max-height: 350px; object-fit: cover;">
+        <div class="card-footer bg-white text-center text-muted small py-2">
+            <i class="fas fa-camera me-1"></i> Partner Uploaded Banquet Hall View
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Main Spaces Listing -->
+        <div class="col-lg-8">
+            <h4 class="mb-3 text-secondary">Available Banquet Spaces</h4>
+            
+            {% if banquet_spaces %}
+                <div class="row">
+                {% for space in banquet_spaces %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 shadow-sm border">
+                            {% if space.image %}
+                                <img src="{{ space.image.url }}" class="card-img-top" alt="{{ space.name }}" style="height: 180px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 180px;">
+                                    <i class="fas fa-image fa-2x"></i>
+                                </div>
+                            {% endif %}
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title fw-bold text-dark">{{ space.name }}</h5>
+                                <p class="card-text text-muted small mb-2">{{ space.description|default:"Spacious and elegant venue suitable for weddings, parties, and corporate events." }}</p>
+                                
+                                <div class="mt-auto">
+                                    <p class="mb-2 text-success fw-bold">
+                                        Base Rent: ₹{{ space.price_per_slot|default:"50,000" }}
+                                    </p>
+                                    <button type="button" class="btn btn-outline-success w-100" 
+                                            onclick="openBanquetModal('{{ space.name }}', '{{ space.price_per_slot|default:50000 }}', '{{ space.id }}')">
+                                        <i class="fas fa-calendar-check me-1"></i> Select Space
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-warning text-center py-4" role="alert">
+                    <i class="fas fa-exclamation-circle fa-2x mb-2"></i>
+                    <p class="mb-0">No banquet spaces are currently listed for this venue. Please check back later or explore our room and table bookings.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar Filters & Summary -->
         <div class="col-lg-4">
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-body p-4">
-                    <h5 class="fw-bold text-dark mb-2"><i class="fas fa-sliders-h text-success me-2"></i>Booking Requirements</h5>
-                    <p class="text-muted small mb-4">Select your date and preferences to verify venue availability and calculate live estimates.</p>
-                    
-                    <form method="GET" action="">
-                        
+            <div class="card shadow-sm border mb-4">
+                <div class="card-header bg-success text-white fw-bold">
+                    <i class="fas fa-sliders-h me-1"></i> Event Requirements
+                </div>
+                <div class="card-body">
+                    <form id="banquet-filter-form">
                         <div class="mb-3">
-                            <label class="form-label small fw-bold text-secondary"><i class="far fa-calendar-alt text-success me-1"></i> Select Event Date</label>
-                            <input type="date" name="event_date" class="form-control" value="{{ event_date|default:'2026-12-25' }}">
+                            <label class="form-label fw-semibold small">Event Date</label>
+                            <input type="date" class="form-control" name="event_date" value="2026-12-25" oninput="updateBanquetCalculation()">
                         </div>
 
-                        
                         <div class="mb-3">
-                            <label class="form-label small fw-bold text-secondary"><i class="far fa-clock text-success me-1"></i> Session Slot</label>
-                            <div class="btn-group w-100" role="group">
-                                <input type="radio" class="btn-check" name="session" id="slot-morning" value="Morning">
-                                <label class="btn btn-outline-success btn-sm fw-semibold" for="slot-morning">Morning</label>
+                            <label class="form-label fw-semibold small">Expected Guest Count</label>
+                            <input type="number" class="form-control" id="guest-count-input" value="450" min="50" max="2000" oninput="updateBanquetCalculation()">
+                        </div>
 
-                                <input type="radio" class="btn-check" name="session" id="slot-evening" value="Evening" checked>
-                                <label class="btn btn-outline-success btn-sm fw-semibold" for="slot-evening">Evening</label>
-
-                                <input type="radio" class="btn-check" name="session" id="slot-fullday" value="Full Day">
-                                <label class="btn btn-outline-success btn-sm fw-semibold" for="slot-fullday">Full Day</label>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">Session Slot</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="session" id="slotMorning" value="Morning">
+                                    <label class="form-check-label small" for="slotMorning">Morning</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="session" id="slotEvening" value="Evening" checked>
+                                    <label class="form-check-label small" for="slotEvening">Evening</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="session" id="slotFullDay" value="Full Day">
+                                    <label class="form-check-label small" for="slotFullDay">Full Day</label>
+                                </div>
                             </div>
                         </div>
 
-                        
                         <div class="mb-3">
-                            <label class="form-label small fw-bold text-secondary"><i class="fas fa-utensils text-success me-1"></i> Catering Preference</label>
-                            <select name="catering" id="catering-select" class="form-select" onchange="updateBanquetCalculation()">
-                                <option value="600" selected>Vegetarian (₹600 / plate)</option>
-                                <option value="850">Non-Vegetarian (₹850 / plate)</option>
-                                <option value="1100">Premium Royal Buffet (₹1,100 / plate)</option>
-                                <option value="0">No Catering Service</option>
+                            <label class="form-label fw-semibold small">Catering Package</label>
+                            <select class="form-select form-select-sm" id="catering-select" onchange="updateBanquetCalculation()">
+                                <option value="450" selected>Standard Buffet - ₹450 / plate</option>
+                                <option value="750">Premium Feast - ₹750 / plate</option>
+                                <option value="1100">Royal Malabar Banquet - ₹1,100 / plate</option>
+                                <option value="0">No Catering / Hall Only</option>
                             </select>
                         </div>
-
-                        
-                        <div class="mb-4">
-                            <label class="form-label small fw-bold text-secondary"><i class="fas fa-users text-success me-1"></i> Guest Count Estimate</label>
-                            <input type="number" name="guests" id="guest-count-input" class="form-control" value="450" min="50" max="1000" oninput="updateBanquetCalculation()">
-                            <div class="form-text text-muted" style="font-size: 0.75rem;">Used to scale plate costs and calculate total capacity fit.</div>
-                        </div>
-
-                        <button type="submit" class="btn btn-success w-100 fw-bold py-2">
-                            <i class="fas fa-check-circle me-1"></i> Save Preferences
-                        </button>
                     </form>
                 </div>
             </div>
 
-            <div class="alert alert-warning border-0 shadow-sm text-dark small" role="alert">
-                <i class="fas fa-info-circle me-1 text-warning-emphasis"></i> Prices vary dynamically based on your live selection constraints.
-            </div>
-        </div>
-
-        
-        <div class="col-lg-8">
-            <h4 class="fw-bold text-dark mb-3">Available Banquet & Event Spaces</h4>
-            
-            {% for space in banquet_spaces %}
-            <div class="card shadow-sm border-0 mb-3">
-                <div class="card-body p-4 d-flex flex-column justify-content-between">
-                    <div>
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div>
-                                <h4 class="fw-bold text-dark mb-1">{{ space.name }}</h4>
-                                <p class="text-muted small mb-2"><i class="fas fa-map-marker-alt text-success me-1"></i> {{ space.description|default:"Center-liced AC, Music system, LED projector" }}</p>
-                            </div>
-                            <div class="text-end">
-                                <span class="text-muted small d-block">Base Rent / Session</span>
-                                <h4 class="text-success fw-bold mb-0">₹<span id="base-rent-val">{{ space.price|default:"50,000" }}</span>.00</h4>
-                            </div>
-                        </div>
-
-                        <div class="d-flex gap-4 text-secondary small mb-3">
-                            <span><i class="fas fa-users text-dark me-1"></i> {{ space.floating_capacity|default:"1000" }} Floating</span>
-                            <span><i class="fas fa-chair text-dark me-1"></i> {{ space.seated_capacity|default:"600" }} Seated</span>
-                        </div>
-
-                        <div class="d-flex flex-wrap gap-2 mb-4">
-                            <span class="badge bg-success bg-opacity-10 text-success px-2 py-1"><i class="fas fa-snowflake me-1"></i> AC Hall</span>
-                            <span class="badge bg-success bg-opacity-10 text-success px-2 py-1"><i class="fas fa-microphone me-1"></i> Stage Included</span>
-                            <span class="badge bg-success bg-opacity-10 text-success px-2 py-1"><i class="fas fa-car me-1"></i> Valet Parking</span>
-                            <span class="badge bg-success bg-opacity-10 text-success px-2 py-1"><i class="fas fa-volume-up me-1"></i> AV Sound System</span>
-                        </div>
+            <!-- Cost Breakdown Card -->
+            <div class="card shadow-sm border bg-white">
+                <div class="card-body">
+                    <h6 class="fw-bold text-secondary mb-3"><i class="fas fa-receipt me-1"></i> Live Estimation</h6>
+                    <div class="d-flex justify-content-between small mb-2">
+                        <span class="text-muted">Base Venue Rent:</span>
+                        <span class="fw-bold">₹<span id="summary-base-rent">50,000</span></span>
                     </div>
-
-                    <div>
-                        <button type="button" class="btn btn-success w-100 fw-bold py-2" onclick="openBanquetModal('{{ space.name }}', '{{ space.price|default:50000 }}', '{{ space.id }}')">
-                            <i class="fas fa-calendar-check me-1"></i> Book Event Space
-                        </button>
+                    <div class="d-flex justify-content-between small mb-2">
+                        <span class="text-muted">Catering (<span id="summary-guest-count">450</span> guests):</span>
+                        <span class="fw-bold">₹<span id="summary-catering-total">202,500</span></span>
+                    </div>
+                    <div class="d-flex justify-content-between small mb-2">
+                        <span class="text-muted">Selected Slot:</span>
+                        <span class="fw-bold text-success" id="summary-slot-name">Evening</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-bold text-dark">Estimated Total:</span>
+                        <span class="fw-bold text-success">₹<span id="summary-grand-total">252,500</span></span>
+                    </div>
+                    <div class="d-flex justify-content-between small text-muted">
+                        <span>Advance Token (20%):</span>
+                        <span>₹<span id="summary-advance-total">50,500</span></span>
                     </div>
                 </div>
             </div>
-            {% empty %}
-            
-            <div class="card shadow-sm border-0 mb-3">
-                <div class="card-body p-4 d-flex flex-column justify-content-between">
-                    <div>
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div>
-                                <h4 class="fw-bold text-dark mb-1">Velocity Grand Ballroom</h4>
-                                <p class="text-muted small mb-2"><i class="fas fa-map-marker-alt text-success me-1"></i> Center-sliced AC, premium sound system, and customizable stage lighting.</p>
-                            </div>
-                            <div class="text-end">
-                                <span class="text-muted small d-block">Base Rent / Session</span>
-                                <h4 class="text-success fw-bold mb-0">₹50,000.00</h4>
-                            </div>
-                        </div>
-
-                        <div class="d-flex gap-4 text-secondary small mb-3">
-                            <span><i class="fas fa-users text-dark me-1"></i> 1000 Floating</span>
-                            <span><i class="fas fa-chair text-dark me-1"></i> 600 Seated</span>
-                        </div>
-
-                        <div class="d-flex flex-wrap gap-2 mb-4">
-                            <span class="badge bg-success bg-opacity-10 text-success px-2 py-1"><i class="fas fa-snowflake me-1"></i> AC Hall</span>
-                            <span class="badge bg-success bg-opacity-10 text-success px-2 py-1"><i class="fas fa-microphone me-1"></i> Stage Included</span>
-                            <span class="badge bg-success bg-opacity-10 text-success px-2 py-1"><i class="fas fa-car me-1"></i> Valet Parking</span>
-                            <span class="badge bg-success bg-opacity-10 text-success px-2 py-1"><i class="fas fa-volume-up me-1"></i> AV Sound System</span>
-                        </div>
-                    </div>
-
-                    <div>
-                        <button type="button" class="btn btn-success w-100 fw-bold py-2" onclick="openBanquetModal('Velocity Grand Ballroom', '50000', '1')">
-                            <i class="fas fa-calendar-check me-1"></i> Book Event Space
-                        </button>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
         </div>
-
     </div>
 </div>
 
-
-<div class="modal fade" id="banquetBookingModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg">
-            
+<!-- Booking Confirmation Modal -->
+<div class="modal fade" id="banquetBookingModal" tabindex="-1" aria-labelledby="banquetBookingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
             <form method="POST" action="">
                 {% csrf_token %}
-                <input type="hidden" name="space_id" id="modal-banquet-id" value="">
-                <input type="hidden" name="event_date" id="modal-event-date" value="2026-12-25">
-                <input type="hidden" name="guests" id="modal-guests-val" value="450">
-
-                <div class="modal-header bg-white border-bottom py-3">
-                    <h5 class="modal-title fw-bold text-success">
-                        <i class="fas fa-glass-cheers me-2"></i>Confirm Booking: <span id="modal-banquet-title">Velocity</span>
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="banquetBookingModalLabel">Confirm Booking: <span id="modal-banquet-title">Hall</span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-
-                <div class="modal-body p-4 bg-white">
-                    <div class="row g-4">
+                <div class="modal-body">
+                    <input type="hidden" name="space_id" id="modal-banquet-id">
+                    <input type="hidden" name="event_date" id="modal-event-date">
+                    <input type="hidden" name="guests" id="modal-guests-val">
                     
-                        <div class="col-lg-7">
-                            <h6 class="fw-bold text-dark mb-3"><i class="fas fa-user-circle text-success me-2"></i>Organizer Identity</h6>
-                            <div class="row g-3 mb-4">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold small text-secondary">Full Name / Organization</label>
-                                    <input type="text" name="booking_name" class="form-control" placeholder="Enter organizer name" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold small text-secondary">Contact Number</label>
-                                    <input type="text" name="booking_phone" class="form-control" placeholder="Enter contact number" required>
-                                </div>
-                            </div>
-
-                            <h6 class="fw-bold text-dark mb-3"><i class="fas fa-wallet text-success me-2"></i>Select Advance Payment Method</h6>
-                            <div class="row g-2">
-                                <div class="col-6">
-                                    <input type="radio" class="btn-check" name="banquetPaymentMethod" id="banquet-pay-upi" value="UPI" checked>
-                                    <label class="btn btn-outline-success w-100 py-3 fw-semibold" for="banquet-pay-upi">
-                                        <i class="fas fa-qrcode d-block mb-1"></i> UPI / QR Code
-                                    </label>
-                                </div>
-                                <div class="col-6">
-                                    <input type="radio" class="btn-check" name="banquetPaymentMethod" id="banquet-pay-card" value="Card">
-                                    <label class="btn btn-outline-primary w-100 py-3 fw-semibold" for="banquet-pay-card">
-                                        <i class="far fa-credit-card d-block mb-1"></i> Credit / Debit Card
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        
-                        <div class="col-lg-5">
-                            <div class="card shadow-sm border bg-light h-100">
-                                <div class="card-body p-4 d-flex flex-column justify-content-between">
-                                    <div>
-                                        <h6 class="fw-bold text-dark mb-3"><i class="fas fa-file-invoice text-success me-2"></i>Event Cost Breakdown</h6>
-                                        
-                                        <div class="d-flex justify-content-between mb-2 text-secondary small">
-                                            <span>Venue Base Rent:</span>
-                                            <span class="fw-bold text-dark">₹<span id="summary-base-rent">50,000</span>.00</span>
-                                        </div>
-                                        <div class="d-flex justify-content-between mb-2 text-secondary small">
-                                            <span>Catering (<span id="summary-guest-count">450</span> Guests):</span>
-                                            <span class="fw-bold text-dark">₹<span id="summary-catering-total">0</span>.00</span>
-                                        </div>
-                                        <div class="d-flex justify-content-between mb-2 text-secondary small">
-                                            <span>Selected Slot:</span>
-                                            <span class="fw-bold text-dark" id="summary-slot-name">Evening</span>
-                                        </div>
-                                        
-                                        <hr>
-
-                                        <div class="d-flex justify-content-between fw-bold fs-6 text-dark mb-1">
-                                            <span>Total Estimate</span>
-                                            <span class="text-dark">₹<span id="summary-grand-total">0</span>.00</span>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <hr>
-                                        <div class="d-flex justify-content-between fw-bold fs-5 text-dark mb-2">
-                                            <span>Token Advance (20%)</span>
-                                            <span class="text-success">₹<span id="summary-advance-total">0</span>.00</span>
-                                        </div>
-                                        <div class="text-muted" style="font-size: 0.7rem;">Secure your booking slot instantly with the token advance payment.</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <p class="text-muted small">You are about to submit an advance booking request for this venue. Our management team will verify availability and contact you shortly.</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Full Name</label>
+                        <input type="text" class="form-control" name="customer_name" required value="{{ request.user.get_full_name }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Contact Phone Number</label>
+                        <input type="tel" class="form-control" name="customer_phone" required placeholder="+968 XXXXXXXX">
                     </div>
                 </div>
-
-                <div class="modal-footer bg-light py-3">
-                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success px-5 fw-bold">
-                        Confirm & Pay Advance <i class="fas fa-check ms-1"></i>
-                    </button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success btn-sm px-4">Confirm & Pay Advance</button>
                 </div>
             </form>
-
         </div>
     </div>
 </div>
+{% endblock %}
 
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}
 <script>
     let activeBanquetPrice = 50000;
 
@@ -279,6 +197,18 @@
         document.getElementById('modal-banquet-title').innerText = spaceName;
         document.getElementById('modal-banquet-id').value = spaceId;
         
+        let selectedDate = document.querySelector('input[name="event_date"]').value;
+        let guests = document.getElementById('guest-count-input').value;
+        
+        document.getElementById('modal-event-date').value = selectedDate;
+        document.getElementById('modal-guests-val').value = guests;
+
+        let selectedSlot = document.querySelector('input[name="session"]:checked');
+        if (selectedSlot) {
+            let slotLabel = document.querySelector(`label[for="${selectedSlot.id}"]`).innerText;
+            document.getElementById('summary-slot-name').innerText = slotLabel;
+        }
+
         updateBanquetCalculation();
 
         let myModal = new bootstrap.Modal(document.getElementById('banquetBookingModal'));
@@ -292,9 +222,8 @@
         
         let cateringTotal = guests * plateRate;
         let grandTotal = activeBanquetPrice + cateringTotal;
-        let tokenAdvance = Math.round(grandTotal * 0.20); // 20% token deposit
+        let tokenAdvance = Math.round(grandTotal * 0.20);
 
-        
         document.getElementById('summary-base-rent').innerText = activeBanquetPrice.toLocaleString('en-IN');
         document.getElementById('summary-guest-count').innerText = guests;
         document.getElementById('summary-catering-total').innerText = cateringTotal.toLocaleString('en-IN');
@@ -303,6 +232,12 @@
         
         document.getElementById('modal-guests-val').value = guests;
     }
+
+    document.querySelectorAll('input[name="session"]').forEach((elem) => {
+        elem.addEventListener('change', function(event) {
+            let slotLabel = document.querySelector(`label[for="${event.target.id}"]`).innerText;
+            document.getElementById('summary-slot-name').innerText = slotLabel;
+        });
+    });
 </script>
-</body>
-</html>
+{% endblock %}

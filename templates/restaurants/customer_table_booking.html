@@ -12,6 +12,8 @@
         .payment-option-card { border: 2px solid #dee2e6; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
         .payment-option-card:hover { border-color: #198754; background-color: #f8f9fa; }
         .btn-check:checked + .payment-option-card { border-color: #198754; background-color: #f1f8f5; }
+        .restaurant-banner { height: 300px; object-fit: cover; border-radius: 12px; }
+        .modal-table-img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; margin-bottom: 12px; }
     </style>
 </head>
 <body class="bg-light">
@@ -35,18 +37,29 @@
             <p class="text-muted mb-0">Select your preferred space or table below to proceed with your reservation.</p>
         </div>
 
+        <!-- Inside View Image (Shown only if uploaded by partner) -->
+        {% if restaurant.inside_view %}
+        <div class="card border-0 shadow-sm mb-4 bg-white rounded-3 overflow-hidden">
+            <img src="{{ restaurant.inside_view.url }}" class="w-100 restaurant-banner" alt="{{ restaurant.business_name }}">
+        </div>
+        {% endif %}
+
         <!-- Tables Grid -->
         <div class="row g-4 mb-5">
             {% for space in spaces %}
                 <div class="col-md-4">
                     <div class="card table-card shadow-sm border-0 p-4 bg-white text-center">
-                        <div class="bg-light rounded-circle d-inline-flex p-3 mx-auto mb-3 text-success">
-                            <i class="fas fa-chair fa-2x"></i>
-                        </div>
+                        {% if space.image %}
+                            <img src="{{ space.image.url }}" class="rounded-circle mx-auto mb-3 object-fit-cover shadow-sm" style="width: 80px; height: 80px;" alt="{{ space.name }}">
+                        {% else %}
+                            <div class="bg-light rounded-circle d-inline-flex p-3 mx-auto mb-3 text-success">
+                                <i class="fas fa-chair fa-2x"></i>
+                            </div>
+                        {% endif %}
                         <h4 class="fw-bold text-dark mb-1">Table {{ space.number|default:space.name }}</h4>
                         <p class="text-muted small mb-3"><i class="fas fa-users me-1 text-secondary"></i> Capacity: <strong>{{ space.capacity|default:4 }} Guests</strong></p>
                         <button class="btn btn-success w-100 py-2 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#tableBookingModal"
-                                onclick="openTableModal('{{ space.id }}', '{{ space.number|default:space.name }}', '{{ space.capacity|default:4 }}')">
+                                onclick="openTableModal('{{ space.id }}', '{{ space.number|default:space.name }}', '{{ space.capacity|default:4 }}', '{% if space.image %}{{ space.image.url }}{% endif %}')">
                             <i class="fas fa-calendar-check me-1"></i> Book Now
                         </button>
                     </div>
@@ -130,6 +143,12 @@
                         <!-- Right Side: Summary & Payment -->
                         <div class="col-md-5 ps-md-4">
                             <h5 class="fw-bold text-dark mb-3"><i class="fas fa-file-invoice text-success me-2"></i> Table Reservation Summary</h5>
+                            
+                            <!-- Dynamic Table Image Container -->
+                            <div id="modal-image-container" style="display: none;">
+                                <img id="modal-table-img" src="" class="modal-table-img shadow-sm" alt="Selected Table">
+                            </div>
+
                             <div class="bg-light p-3 rounded border mb-3">
                                 <div class="d-flex justify-content-between mb-2 small text-secondary">
                                     <span>Venue:</span>
@@ -185,8 +204,6 @@
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                    
-                    <!-- Fixed: Added type="submit" so the form posts data properly -->
                     <button type="submit" class="btn btn-success px-4 btn-sm fw-bold">
                         Confirm & Reserve Table <i class="fas fa-check ms-1"></i>
                     </button>
@@ -197,13 +214,23 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function openTableModal(spaceId, tableNo, capacity) {
+        function openTableModal(spaceId, tableNo, capacity, imageUrl) {
             document.getElementById('modal-space-id').value = spaceId;
             document.getElementById('modal-table-title').innerHTML = `<i class="fas fa-chair me-2"></i>Complete Your Booking for Table ${tableNo}`;
             document.getElementById('summary-table-label').innerText = `Table ${tableNo}`;
             document.getElementById('summary-capacity-label').innerText = `${capacity} Guests`;
             document.getElementById('summary-capacity-input').value = capacity;
             document.getElementById('token-deposit-check').checked = false;
+
+            const imgContainer = document.getElementById('modal-image-container');
+            const imgElement = document.getElementById('modal-table-img');
+            
+            if (imageUrl && imageUrl.trim() !== "") {
+                imgElement.src = imageUrl;
+                imgContainer.style.display = "block";
+            } else {
+                imgContainer.style.display = "none";
+            }
         }
     </script>
 </body>

@@ -24,9 +24,12 @@ urlpatterns = [
     path('partner/profile/edit/', views.edit_restaurant_profile, name='edit_restaurant_profile'),
     path('partner/menu/', views.manage_menu_view, name='manage_menu'),
     path('partner/menu/delete/<int:item_id>/', views.delete_menu_item, name='delete_menu_item'),
+    
+    # Unified space routing mapping to manage_spaces_view
+    path('partner/spaces/<str:space_type>/', views.manage_spaces_view, name='manage_spaces_by_type'),
     path('partner/spaces/', views.manage_spaces_view, name='manage_spaces'),
     path('partner/spaces/delete/<int:space_id>/', views.delete_space, name='delete_space'),
-    path('partner/spaces/<str:space_type>/', views.manage_spaces_by_type, name='manage_spaces_by_type'),
+    
     path('partner/delivery/manage/', views.manage_delivery_view, name='manage_delivery'),
 
     path('customer/restaurant/<int:restaurant_id>/', views.customer_restaurant_view, name='customer_restaurant_view'),
@@ -44,6 +47,9 @@ urlpatterns = [
     path('cancel-delivery/<int:order_id>/', views.cancel_delivery_order, name='cancel_delivery_order'),
     path('super-admin/login/', views.super_admin_login_view, name='super_admin_login'),
     path('partner/revenue-report/', views.partner_revenue_report_view, name='partner_revenue_report'),
+    path('partner/delivery/toggle-pause/', views.toggle_pause_orders, name='toggle_pause_orders'),
+    path('partner/delivery/manage/', views.manage_delivery_view, name='manage_delivery'),
+    path('partner/delivery/item/toggle/<int:item_id>/', views.toggle_menu_item, name='toggle_menu_item'), # Add this line
 ]
 
 if settings.DEBUG:
