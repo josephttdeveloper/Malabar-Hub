@@ -24,6 +24,20 @@
         </div>
     </nav>
 
+    <!-- Global Django Messages (Hidden on register/login views to prevent lingering alerts) -->
+    {% if not 'register' in request.path and not 'login' in request.path %}
+        {% if messages %}
+            <div class="container mt-3">
+                {% for message in messages %}
+                    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endif %}
+
     <!-- Main Content Block -->
     <main>
         {% block content %}

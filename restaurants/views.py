@@ -679,15 +679,13 @@ def partner_revenue_report_view(request):
     all_bookings = Booking.objects.filter(restaurant=restaurant)
     deliveries = HomeDeliveryOrder.objects.filter(restaurant=restaurant)
     
-    
     def get_price(obj):
-        for field in ['total_price', 'total_amount', 'price', 'amount', 'cost']:
+        for field in ['paid_amount', 'total_price', 'total_amount', 'price', 'amount', 'cost']:
             val = getattr(obj, field, None)
             if val is not None:
                 return val
         return 0
 
-    
     tables = []
     rooms = []
     banquets = []
@@ -720,13 +718,13 @@ def partner_revenue_report_view(request):
         writer.writerow(['Section', 'Booking/Order ID', 'Customer Name', 'Payment Status', 'Amount', 'Date'])
         
         for t in tables:
-            writer.writerow(['Table Booking', t.id, getattr(t, 'customer_name', 'Customer'), 'Paid', t.calculated_amount, getattr(t, 'created_at', '')])
+            writer.writerow(['Table Booking', t.id, getattr(t, 'customer_name', 'Customer'), getattr(t, 'status', 'Pending'), t.calculated_amount, getattr(t, 'created_at', '')])
         for d in deliveries:
-            writer.writerow(['Home Delivery', d.id, getattr(d, 'customer_name', 'Customer'), 'Paid', d.calculated_amount, getattr(d, 'created_at', '')])
+            writer.writerow(['Home Delivery', d.id, getattr(d, 'customer_name', 'Customer'), getattr(d, 'status', 'Pending'), d.calculated_amount, getattr(d, 'created_at', '')])
         for r in rooms:
-            writer.writerow(['Room Booking', r.id, getattr(r, 'customer_name', 'Customer'), 'Paid', r.calculated_amount, getattr(r, 'created_at', '')])
+            writer.writerow(['Room Booking', r.id, getattr(r, 'customer_name', 'Customer'), getattr(r, 'status', 'Pending'), r.calculated_amount, getattr(r, 'created_at', '')])
         for b in banquets:
-            writer.writerow(['Banquet Booking', b.id, getattr(b, 'customer_name', 'Customer'), 'Paid', b.calculated_amount, getattr(b, 'created_at', '')])
+            writer.writerow(['Banquet Booking', b.id, getattr(b, 'customer_name', 'Customer'), getattr(b, 'status', 'Pending'), b.calculated_amount, getattr(b, 'created_at', '')])
             
         return response
 
@@ -743,7 +741,6 @@ def partner_revenue_report_view(request):
         'overall_revenue': overall_revenue,
     }
     return render(request, 'restaurants/partner_revenue_report.html', context)
-
 
 @login_required
 def toggle_pause_orders(request):

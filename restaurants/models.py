@@ -33,7 +33,7 @@ class Restaurant(models.Model):
     bar_images = models.ImageField(upload_to='restaurant_images/', blank=True, null=True)
     
     is_verified = models.BooleanField(default=False)
-    is_accepting_orders = models.BooleanField(default=True)  # <-- Added field to track pause/resume state
+    is_accepting_orders = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
@@ -47,7 +47,6 @@ class Restaurant(models.Model):
 
     def __str__(self):
         return f"{self.business_name} ({'Verified' if self.is_verified else 'Pending'})"
-
 
 
 class MenuItem(models.Model):
@@ -72,7 +71,6 @@ class MenuItem(models.Model):
         return f"{self.name} - {self.restaurant.business_name}"
 
 
-
 class Space(models.Model):
     SPACE_TYPES = [
         ('table', 'Dining Table'),
@@ -83,17 +81,16 @@ class Space(models.Model):
     ]
 
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='spaces')
-    name = models.CharField(max_length=100)  # e.g., "Table 1" or "Deluxe Room 101"
+    name = models.CharField(max_length=100)
     space_type = models.CharField(max_length=50, choices=SPACE_TYPES, default='table')
-    capacity = models.PositiveIntegerField(default=4)  # Number of people it seats/holds
-    price_per_slot = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)  # For rooms/halls
-    image = models.ImageField(upload_to='spaces/', blank=True, null=True)  # Added to support image uploads
+    capacity = models.PositiveIntegerField(default=4)
+    price_per_slot = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
+    image = models.ImageField(upload_to='spaces/', blank=True, null=True)
     is_available = models.BooleanField(default=True)
     description = models.TextField(blank=True)
 
     def __str__(self):
         return f"{self.name} ({self.get_space_type_display()}) - {self.restaurant.business_name}"
-    
 
 
 class Booking(models.Model):
@@ -102,17 +99,27 @@ class Booking(models.Model):
         ('room', 'Room Booking'),
         ('banquet', 'Banquet Booking'),
     ]
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
     space = models.ForeignKey(Space, on_delete=models.CASCADE, null=True, blank=True)
     booking_type = models.CharField(max_length=20, choices=BOOKING_TYPES, default='table')
     booking_date = models.DateTimeField()
     guests_count = models.PositiveIntegerField(default=1)
+    
+    # Fields required for room and space bookings
+    name = models.CharField(max_length=100, blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    extra_bed = models.BooleanField(default=False)
+    payment_mode = models.CharField(max_length=50, blank=True, null=True)
+    paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    payment_method = models.CharField(max_length=50, blank=True, null=True)
+    status = models.CharField(max_length=50, default='Pending')
+    
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.booking_type} at {self.restaurant.business_name}"
-
+        username = self.user.username if self.user else (self.name or 'Guest')
+        return f"{username} - {self.booking_type} at {self.restaurant.business_name}"
 
 
 class HomeDeliveryOrder(models.Model):
@@ -126,3 +133,6 @@ class HomeDeliveryOrder(models.Model):
     payment_method = models.CharField(max_length=50)
     status = models.CharField(max_length=50, default='Order Placed')
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Order #{self.id} by {self.customer.username} from {self.restaurant.business_name}"
