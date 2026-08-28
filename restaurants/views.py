@@ -668,6 +668,7 @@ def cancel_delivery_order(request, order_id):
     return redirect('customer_bookings')
 
 
+
 @login_required
 def partner_revenue_report_view(request):
     try:
@@ -691,7 +692,14 @@ def partner_revenue_report_view(request):
     banquets = []
     
     for b in all_bookings:
-        b.calculated_amount = get_price(b)
+        amount = get_price(b)
+        status = str(getattr(b, 'status', '')).strip().lower()
+        
+        # Only include if status is strictly 'paid' AND amount is greater than 0
+        if status != 'paid' or amount <= 0:
+            continue
+            
+        b.calculated_amount = amount
         b_type = str(getattr(b, 'booking_type', getattr(b, 'category', 'table'))).lower()
         if 'room' in b_type:
             rooms.append(b)
@@ -700,8 +708,17 @@ def partner_revenue_report_view(request):
         else:
             tables.append(b)
             
+    valid_deliveries = []
     for d in deliveries:
-        d.calculated_amount = get_price(d)
+        amount = get_price(d)
+        status = str(getattr(d, 'status', '')).strip().lower()
+        
+        # Only include if status is strictly 'paid' AND amount is greater than 0
+        if status == 'paid' and amount > 0:
+            d.calculated_amount = amount
+            valid_deliveries.append(d)
+            
+    deliveries = valid_deliveries
 
     total_table_revenue = sum(t.calculated_amount for t in tables)
     total_delivery_revenue = sum(d.calculated_amount for d in deliveries)
@@ -718,13 +735,13 @@ def partner_revenue_report_view(request):
         writer.writerow(['Section', 'Booking/Order ID', 'Customer Name', 'Payment Status', 'Amount', 'Date'])
         
         for t in tables:
-            writer.writerow(['Table Booking', t.id, getattr(t, 'customer_name', 'Customer'), getattr(t, 'status', 'Pending'), t.calculated_amount, getattr(t, 'created_at', '')])
+            writer.writerow(['Table Booking', t.id, getattr(t, 'customer_name', 'Customer'), 'Paid', t.calculated_amount, getattr(t, 'created_at', '')])
         for d in deliveries:
-            writer.writerow(['Home Delivery', d.id, getattr(d, 'customer_name', 'Customer'), getattr(d, 'status', 'Pending'), d.calculated_amount, getattr(d, 'created_at', '')])
+            writer.writerow(['Home Delivery', d.id, getattr(d, 'customer_name', 'Customer'), 'Paid', d.calculated_amount, getattr(d, 'created_at', '')])
         for r in rooms:
-            writer.writerow(['Room Booking', r.id, getattr(r, 'customer_name', 'Customer'), getattr(r, 'status', 'Pending'), r.calculated_amount, getattr(r, 'created_at', '')])
+            writer.writerow(['Room Booking', r.id, getattr(r, 'customer_name', 'Customer'), 'Paid', r.calculated_amount, getattr(r, 'created_at', '')])
         for b in banquets:
-            writer.writerow(['Banquet Booking', b.id, getattr(b, 'customer_name', 'Customer'), getattr(b, 'status', 'Pending'), b.calculated_amount, getattr(b, 'created_at', '')])
+            writer.writerow(['Banquet Booking', b.id, getattr(b, 'customer_name', 'Customer'), 'Paid', b.calculated_amount, getattr(b, 'created_at', '')])
             
         return response
 
@@ -741,6 +758,7 @@ def partner_revenue_report_view(request):
         'overall_revenue': overall_revenue,
     }
     return render(request, 'restaurants/partner_revenue_report.html', context)
+
 
 @login_required
 def toggle_pause_orders(request):
