@@ -48,8 +48,11 @@ urlpatterns = [
     path('super-admin/login/', views.super_admin_login_view, name='super_admin_login'),
     path('partner/revenue-report/', views.partner_revenue_report_view, name='partner_revenue_report'),
     path('partner/delivery/toggle-pause/', views.toggle_pause_orders, name='toggle_pause_orders'),
-    path('partner/delivery/manage/', views.manage_delivery_view, name='manage_delivery'),
-    path('partner/delivery/item/toggle/<int:item_id>/', views.toggle_menu_item, name='toggle_menu_item'), # Add this line
+    path('partner/delivery/item/toggle/<int:item_id>/', views.toggle_menu_item, name='toggle_menu_item'),
+    path('partner/delivery/orders/', views.partner_delivery_orders_view, name='partner_delivery_orders'), 
+    path('partner/bookings/', views.partner_bookings_view, name='partner_bookings'),
+    path('partner/settings/', views.partner_settings_view, name='partner_settings'),
+    path('partner/bookings/confirm/<int:booking_id>/', views.confirm_partner_booking, name='confirm_partner_booking'),
 ]
 
 if settings.DEBUG:

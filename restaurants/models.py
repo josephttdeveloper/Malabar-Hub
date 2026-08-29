@@ -104,15 +104,19 @@ class Booking(models.Model):
     space = models.ForeignKey(Space, on_delete=models.CASCADE, null=True, blank=True)
     booking_type = models.CharField(max_length=20, choices=BOOKING_TYPES, default='table')
     booking_date = models.DateTimeField()
+    
+    checkin = models.DateField(blank=True, null=True)
+    checkout = models.DateField(blank=True, null=True)
+    
     guests_count = models.PositiveIntegerField(default=1)
     
-    # Fields required for room and space bookings
     name = models.CharField(max_length=100, blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
     extra_bed = models.BooleanField(default=False)
     payment_mode = models.CharField(max_length=50, blank=True, null=True)
     paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     payment_method = models.CharField(max_length=50, blank=True, null=True)
+    payment_status = models.CharField(max_length=50, default='Paid') # Added field
     status = models.CharField(max_length=50, default='Pending')
     
     created_at = models.DateTimeField(auto_now_add=True)
