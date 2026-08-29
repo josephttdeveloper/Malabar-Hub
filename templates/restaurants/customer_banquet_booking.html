@@ -167,20 +167,56 @@
                     <input type="hidden" name="event_date" id="modal-event-date">
                     <input type="hidden" name="guests" id="modal-guests-val">
                     
-                    <p class="text-muted small">You are about to submit an advance booking request for this venue. Our management team will verify availability and contact you shortly.</p>
+                    <p class="text-muted small">You are about to submit your booking request for this venue. Please verify your details and select your preferred payment mode below.</p>
                     
+                    <!-- Payment Choice Selection Options -->
+                    <div class="card bg-white border border-secondary shadow-sm p-3 mb-3">
+                        <label class="form-label small fw-bold text-dark mb-2">Select Payment Option</label>
+                        <div class="vstack gap-2 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="payment_choice" id="payAdvance" value="advance" checked onchange="togglePaymentSelection()">
+                                <label class="form-check-label small fw-semibold text-dark" for="payAdvance">
+                                    Pay Advance Token (20%): <span class="text-success fw-bold">₹<span id="modal-advance-display">50,500</span></span>
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="payment_choice" id="payFull" value="full" onchange="togglePaymentSelection()">
+                                <label class="form-check-label small fw-semibold text-dark" for="payFull">
+                                    Pay Full Amount: <span class="text-primary fw-bold">₹<span id="modal-full-display">252,500</span></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Payment Gateway / Mode Selection -->
+                        <label class="form-label small fw-bold text-dark mb-2 border-top pt-2">Payment Method</label>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="payment_method" id="payUpi" value="upi" checked autocomplete="off">
+                                <label class="btn btn-outline-success btn-sm w-100 py-2" for="payUpi">
+                                    <i class="fas fa-mobile-alt me-1"></i> UPI / QR
+                                </label>
+                            </div>
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="payment_method" id="payCard" value="card" autocomplete="off">
+                                <label class="btn btn-outline-primary btn-sm w-100 py-2" for="payCard">
+                                    <i class="fas fa-credit-card me-1"></i> Credit/Debit Card
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">Full Name</label>
+                        <label class="form-label small fw-bold text-dark">Full Name</label>
                         <input type="text" class="form-control" name="customer_name" required value="{{ request.user.get_full_name }}">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">Contact Phone Number</label>
+                        <label class="form-label small fw-bold text-dark">Contact Phone Number</label>
                         <input type="tel" class="form-control" name="customer_phone" required placeholder="+968 XXXXXXXX">
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success btn-sm px-4">Confirm & Pay Advance</button>
+                    <button type="submit" id="modal-submit-btn" class="btn btn-success btn-sm px-4">Confirm & Pay Advance (₹50,500)</button>
                 </div>
             </form>
         </div>
@@ -191,6 +227,8 @@
 {% block extra_js %}
 <script>
     let activeBanquetPrice = 50000;
+    let currentAdvance = 50500;
+    let currentGrandTotal = 252500;
 
     function openBanquetModal(spaceName, basePrice, spaceId) {
         activeBanquetPrice = parseFloat(basePrice);
@@ -211,6 +249,10 @@
 
         updateBanquetCalculation();
 
+        document.getElementById('payAdvance').checked = true;
+        document.getElementById('payUpi').checked = true;
+        togglePaymentSelection();
+
         let myModal = new bootstrap.Modal(document.getElementById('banquetBookingModal'));
         myModal.show();
     }
@@ -221,16 +263,33 @@
         let plateRate = parseFloat(cateringSelect.value) || 0;
         
         let cateringTotal = guests * plateRate;
-        let grandTotal = activeBanquetPrice + cateringTotal;
-        let tokenAdvance = Math.round(grandTotal * 0.20);
+        currentGrandTotal = activeBanquetPrice + cateringTotal;
+        currentAdvance = Math.round(currentGrandTotal * 0.20);
 
         document.getElementById('summary-base-rent').innerText = activeBanquetPrice.toLocaleString('en-IN');
         document.getElementById('summary-guest-count').innerText = guests;
         document.getElementById('summary-catering-total').innerText = cateringTotal.toLocaleString('en-IN');
-        document.getElementById('summary-grand-total').innerText = grandTotal.toLocaleString('en-IN');
-        document.getElementById('summary-advance-total').innerText = tokenAdvance.toLocaleString('en-IN');
+        document.getElementById('summary-grand-total').innerText = currentGrandTotal.toLocaleString('en-IN');
+        document.getElementById('summary-advance-total').innerText = currentAdvance.toLocaleString('en-IN');
         
         document.getElementById('modal-guests-val').value = guests;
+        document.getElementById('modal-advance-display').innerText = currentAdvance.toLocaleString('en-IN');
+        document.getElementById('modal-full-display').innerText = currentGrandTotal.toLocaleString('en-IN');
+
+        togglePaymentSelection();
+    }
+
+    function togglePaymentSelection() {
+        let isFull = document.getElementById('payFull').checked;
+        let submitBtn = document.getElementById('modal-submit-btn');
+        
+        if (isFull) {
+            submitBtn.className = "btn btn-primary btn-sm px-4";
+            submitBtn.innerText = `Confirm & Pay Full (₹${currentGrandTotal.toLocaleString('en-IN')})`;
+        } else {
+            submitBtn.className = "btn btn-success btn-sm px-4";
+            submitBtn.innerText = `Confirm & Pay Advance (₹${currentAdvance.toLocaleString('en-IN')})`;
+        }
     }
 
     document.querySelectorAll('input[name="session"]').forEach((elem) => {

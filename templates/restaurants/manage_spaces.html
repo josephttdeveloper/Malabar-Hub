@@ -1,342 +1,180 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ selected_type|title }} Management - Malabar Hub</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .sidebar { min-height: 100vh; background-color: #2c3e50; color: #fff; }
-        .sidebar .nav-link { color: #bdc3c7; padding: 12px 20px; font-weight: 500; transition: 0.3s; }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active { color: #fff; background-color: #198754; border-radius: 8px; }
-        .stat-card { border-radius: 12px; border-left: 5px solid #198754; transition: transform 0.2s; }
-        .stat-card:hover { transform: translateY(-5px); }
-        .card { border-radius: 12px; }
-        .table thead { background-color: #f8f9fa; }
-    </style>
-</head>
-<body>
+{% extends 'restaurants/base.html' %}
 
-    <div class="container-fluid">
-        <div class="row">
-            
-            <!-- Sidebar Navigation with Fixed Dynamic Links -->
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse p-3">
-                <div class="d-flex align-items-center mb-4 mt-2">
-                    <span class="fs-4 fw-bold text-white">🏢 Malabar Hub</span>
-                </div>
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse text-white min-vh-100 p-3">
+            <div class="position-sticky">
+                <h4 class="text-white py-2 mb-4">Malabar Hub</h4>
                 <ul class="nav flex-column">
-                    <li class="nav-item mb-2"><a href="{% url 'partner_dashboard' %}" class="nav-link"><i class="fas fa-chart-line me-2"></i> Dashboard</a></li>
-                    <li class="nav-item mb-2"><a href="{% url 'manage_spaces_by_type' 'room' %}" class="nav-link {% if selected_type == 'room' %}active{% endif %}"><i class="fas fa-door-open me-2"></i> Manage Rooms</a></li>
-                    <li class="nav-item mb-2"><a href="{% url 'manage_spaces_by_type' 'rooftop' %}" class="nav-link {% if selected_type == 'rooftop' %}active{% endif %}"><i class="fas fa-umbrella-beach me-2"></i> Manage Rooftops</a></li>
-                    <li class="nav-item mb-2"><a href="{% url 'manage_spaces_by_type' 'banquet' %}" class="nav-link {% if selected_type == 'banquet' %}active{% endif %}"><i class="fas fa-building me-2"></i> Manage Banquets</a></li>
-                    <li class="nav-item mb-2"><a href="{% url 'edit_restaurant_profile' %}" class="nav-link"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                    <li class="nav-item mb-2">
+                        <a href="{% url 'partner_dashboard' %}" class="nav-link text-white">
+                            <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="{% url 'manage_spaces' %}" class="nav-link active bg-success text-white rounded">
+                            <i class="fas fa-bed me-2"></i> Manage Rooms
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="{% url 'partner_bookings' %}" class="nav-link text-white">
+                            <i class="fas fa-clipboard-list me-2"></i> Booking Details
+                        </a>
+                    </li>
+                    <li class="nav-item mt-4">
+                        <a href="{% url 'partner_settings' %}" class="nav-link text-white">
+                            <i class="fas fa-cog me-2"></i> Settings
+                        </a>
+                    </li>
                 </ul>
-            </nav>
+            </div>
+        </nav>
 
-            <!-- Main Content Area -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
-                <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
-                    <h2 class="fw-bold text-dark">
-                        {% if selected_type == 'rooftop' %}Manage Rooftop & Open Air Dining Areas
-                        {% elif selected_type == 'room' %}Hotel Room Configuration
-                        {% elif selected_type == 'banquet' %}Banquet Hall Configuration
-                        {% else %}{{ selected_type|title }} Configuration{% endif %}
-                    </h2>
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+            <div class="container mt-2 mb-5">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>{% if "banquet" in request.path %}Banquet Configuration{% else %}Room Configuration{% endif %}</h2>
                     <a href="{% url 'partner_dashboard' %}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i> Back to Dashboard</a>
                 </div>
 
-                <!-- Messages Alert Section -->
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-                            <i class="fas fa-check-circle me-2"></i> {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-
-                <!-- Statistics Widgets -->
                 <div class="row g-3 mb-4">
-                    <div class="col-md-3">
-                        <div class="card shadow-sm stat-card p-3 bg-white border-0">
-                            <small class="text-muted text-uppercase fw-bold">Active Units</small>
-                            <h4 class="fw-bold text-dark mb-0">{{ spaces.count }}</h4>
+                    <div class="col-md-6">
+                        <div class="card shadow-sm border-0 p-3">
+                            <span class="text-muted small text-uppercase fw-bold">Active Units</span>
+                            <h3 class="fw-bold mt-1 mb-0">{{ spaces|length }}</h3>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card shadow-sm stat-card p-3 bg-white border-0">
-                            <small class="text-muted text-uppercase fw-bold">Status Hub</small>
-                            <h4 class="fw-bold text-success mb-0">🟢 Operational</h4>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row g-4">
-                    
-                    <!-- Dynamic Addition Form -->
-                    <div class="col-lg-5">
-                        <div class="card shadow-sm border-0 p-4">
-                            <h5 class="fw-bold mb-3 text-success"><i class="fas fa-plus-circle me-2"></i> 
-                                {% if selected_type == 'rooftop' %}Add Outdoor Space
-                                {% elif selected_type == 'room' %}Add New Room
-                                {% elif selected_type == 'banquet' %}Add New Banquet Hall
-                                {% else %}Add New {{ selected_type|title }}{% endif %}
-                            </h5>
-                            <form method="POST" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                <input type="hidden" name="space_type" value="{{ selected_type }}">
-
-                                {% if selected_type == 'rooftop' %}
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Table / Cabana Label</label>
-                                    <input type="text" name="name" class="form-control" placeholder="e.g., Cabana 1, Sky-Deck Table 4" required>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label small fw-bold">Seating Category</label>
-                                        <select name="seating_category" class="form-select">
-                                            <option value="Standard Dining">Standard Dining Table</option>
-                                            <option value="Luxury Cabana">Luxury Private Cabana</option>
-                                            <option value="Sofa Lounge">Low-Seating Sofa Lounge</option>
-                                            <option value="Bar Stool">Bar-Counter Stool</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label small fw-bold">Seating Capacity</label>
-                                        <input type="number" name="capacity" class="form-control" value="4" min="1" required>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label small fw-bold">View Location Tag</label>
-                                        <select name="view_tag" class="form-select">
-                                            <option value="Front Row Edge">Front Row Edge</option>
-                                            <option value="City View">City View</option>
-                                            <option value="Poolside">Poolside</option>
-                                            <option value="Garden Center">Garden Center</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label small fw-bold">View Premium Fee (₹)</label>
-                                        <input type="number" step="0.01" name="price_per_slot" class="form-control" placeholder="500.00" required>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Minimum Spend Requirement (₹)</label>
-                                    <input type="number" step="0.01" name="min_spend" class="form-control" placeholder="2500.00">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Weather Backup Contingency</label>
-                                    <select name="weather_backup" class="form-select">
-                                        <option value="Move Indoors">Move indoors if available</option>
-                                        <option value="Reschedule">Reschedule booking window</option>
-                                        <option value="Refund">Full automatic refund</option>
-                                    </select>
-                                </div>
-
-                                {% elif selected_type == 'room' %}
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Room Name / Number</label>
-                                    <input type="text" name="name" class="form-control" placeholder="e.g. Room 101, Suite 302" required>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label small fw-bold">Room Category</label>
-                                        <select name="seating_category" class="form-select">
-                                            <option value="Standard Room">Standard Room</option>
-                                            <option value="Deluxe Room">Deluxe Room</option>
-                                            <option value="Suite">Suite Room</option>
-                                            <option value="Executive Suite">Executive Suite</option>
-                                            <option value="Family Room">Family Room</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label small fw-bold">Max Guests (Capacity)</label>
-                                        <input type="number" name="capacity" class="form-control" value="2" min="1" required>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label small fw-bold">Bed Type</label>
-                                        <select name="view_tag" class="form-select">
-                                            <option value="Queen Bed">Queen Bed</option>
-                                            <option value="King Bed">King Bed</option>
-                                            <option value="Twin Beds">Twin Beds</option>
-                                            <option value="Single Bed">Single Bed</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label small fw-bold">Price per Night (₹)</label>
-                                        <input type="number" step="0.01" name="price_per_slot" class="form-control" placeholder="1500.00" required>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Room Amenities</label>
-                                    <div class="row g-2">
-                                        <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="amenities" value="AC" id="rAC"><label class="form-check-label small" for="rAC">AC ❄️</label></div></div>
-                                        <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="amenities" value="Free Wi-Fi" id="rWifi"><label class="form-check-label small" for="rWifi">Free Wi-Fi 📶</label></div></div>
-                                        <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="amenities" value="TV" id="rTv"><label class="form-check-label small" for="rTv">LED TV 📺</label></div></div>
-                                        <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="amenities" value="Balcony" id="rBalcony"><label class="form-check-label small" for="rBalcony">Balcony 🌆</label></div></div>
-                                    </div>
-                                </div>
-
-                                {% elif selected_type == 'banquet' %}
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Banquet Hall Name</label>
-                                    <input type="text" name="name" class="form-control" placeholder="e.g. Grand Imperial Ballroom, Crystal Hall" required>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label small fw-bold">Setup Style</label>
-                                        <select name="seating_category" class="form-select">
-                                            <option value="Theater Style">Theater Style</option>
-                                            <option value="Floating Reception">Floating Reception</option>
-                                            <option value="Round Table Banquet">Round Table Banquet</option>
-                                            <option value="U-Shape Setup">U-Shape Setup</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label small fw-bold">Max Guest Capacity</label>
-                                        <input type="number" name="capacity" class="form-control" value="150" min="10" required>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label small fw-bold">Pricing Model</label>
-                                        <select name="view_tag" class="form-select">
-                                            <option value="Per Slot / Day">Per Slot / Day Rate</option>
-                                            <option value="Per Hour">Per Hour Rate</option>
-                                            <option value="Per Plate Package">Per Plate Package</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label small fw-bold">Rental Rate / Package Fee (₹)</label>
-                                        <input type="number" step="0.01" name="price_per_slot" class="form-control" placeholder="25000.00" required>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Hall Features & Amenities</label>
-                                    <div class="row g-2">
-                                        <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="amenities" value="Stage Setup" id="bStage"><label class="form-check-label small" for="bStage">Stage Setup 🎤</label></div></div>
-                                        <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="amenities" value="Projector & Sound" id="bAudio"><label class="form-check-label small" for="bAudio">Projector & Sound 🔊</label></div></div>
-                                        <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="amenities" value="Central AC" id="bAC"><label class="form-check-label small" for="bAC">Central AC ❄️</label></div></div>
-                                        <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="amenities" value="Dining Area" id="bDining"><label class="form-check-label small" for="bDining">Attached Dining 🍽️</label></div></div>
-                                    </div>
-                                </div>
-
-                                {% else %}
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Label / Name</label>
-                                    <input type="text" name="name" class="form-control" placeholder="e.g. Table 01" required>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label small fw-bold">Capacity</label>
-                                        <input type="number" name="capacity" class="form-control" value="2" min="1" required>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label small fw-bold">Price (₹)</label>
-                                        <input type="number" step="0.01" name="price_per_slot" class="form-control" placeholder="0.00" required>
-                                    </div>
-                                </div>
-                                {% endif %}
-
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Upload Unit Image</label>
-                                    <input type="file" name="image" class="form-control" accept="image/*">
-                                </div>
-
-                                <div class="mb-4">
-                                    <label class="form-label small fw-bold">Additional Notes & Rules</label>
-                                    <textarea name="description" class="form-control" rows="2" placeholder="Mention special instructions or rules..."></textarea>
-                                </div>
-
-                                <button type="submit" class="btn btn-success w-100 fw-bold shadow-sm">
-                                    {% if selected_type == 'rooftop' %}Save Outdoor Space
-                                    {% elif selected_type == 'room' %}Save Room Details
-                                    {% elif selected_type == 'banquet' %}Save Banquet Details
-                                    {% else %}Publish to Inventory{% endif %}
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- Configured Units Display Table -->
-                    <div class="col-lg-7">
-                        <div class="card shadow-sm border-0 p-4 h-100">
-                            <h5 class="fw-bold mb-3">
-                                {% if selected_type == 'room' %}Configured Rooms List
-                                {% elif selected_type == 'banquet' %}Configured Banquet Halls
-                                {% else %}Live Outdoor Grid View{% endif %}
-                            </h5>
-                            <div class="table-responsive">
-                                <table class="table align-middle">
-                                    <thead class="text-muted">
-                                        <tr>
-                                            <th>Image</th>
-                                            <th>Unit Name</th>
-                                            <th>{% if selected_type == 'room' %}Category / Bed{% elif selected_type == 'banquet' %}Setup / Capacity{% else %}Capacity{% endif %}</th>
-                                            <th>Price</th>
-                                            <th>Status</th>
-                                            <th class="text-center">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for space in spaces %}
-                                        <tr>
-                                            <td>
-                                                {% if space.image %}
-                                                    <img src="{{ space.image.url }}" alt="{{ space.name }}" class="rounded" style="width: 45px; height: 45px; object-fit: cover;">
-                                                {% else %}
-                                                    <div class="bg-light text-secondary rounded d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
-                                                        <i class="fas fa-image fa-sm"></i>
-                                                    </div>
-                                                {% endif %}
-                                            </td>
-                                            <td class="fw-bold">{{ space.name }}</td>
-                                            <td>
-                                                {% if selected_type == 'room' %}
-                                                    <span class="badge bg-light text-dark border">🛏️ {{ space.seating_category|default:"Standard" }}</span>
-                                                {% elif selected_type == 'banquet' %}
-                                                    <span class="badge bg-light text-dark border">🏛️ {{ space.seating_category|default:"Standard" }} ({{ space.capacity }} Pax)</span>
-                                                {% else %}
-                                                    <span class="badge bg-light text-dark border">👥 {{ space.capacity }} Pax</span>
-                                                {% endif %}
-                                            </td>
-                                            <td class="text-success fw-bold">₹{{ space.price_per_slot }}</td>
-                                            <td><span class="badge bg-success">Live</span></td>
-                                            <td class="text-center">
-                                                <form action="{% url 'delete_space' space.id %}" method="POST" onsubmit="return confirm('Delete this unit?');" class="d-inline">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                        {% empty %}
-                                        <tr>
-                                            <td colspan="6" class="text-center py-5 text-muted">
-                                                <i class="fas fa-door-open fa-2x mb-2 text-secondary"></i>
-                                                <p class="mb-0">
-                                                    {% if selected_type == 'banquet' %}No banquet halls configured yet.
-                                                    {% elif selected_type == 'room' %}No rooms configured yet.
-                                                    {% else %}No units configured yet.{% endif %}
-                                                </p>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+                    <div class="col-md-6">
+                        <div class="card shadow-sm border-0 p-3">
+                            <span class="text-muted small text-uppercase fw-bold">Status Hub</span>
+                            <div class="d-flex align-items-center mt-1">
+                                <span class="badge rounded-circle bg-success p-1 me-2">&nbsp;</span>
+                                <h5 class="fw-bold mb-0 text-success">Operational</h5>
                             </div>
                         </div>
                     </div>
                 </div>
-            </main>
-        </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+                <div class="row">
+                    <div class="col-lg-5 mb-4">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-body p-4">
+                                <h5 class="fw-bold text-success mb-3">
+                                    <i class="fas fa-plus-circle me-1"></i> 
+                                    {% if "banquet" in request.path %}Add New Banquet Hall{% else %}Add New Room{% endif %}
+                                </h5>
+                                
+                                <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                                    {% csrf_token %}
+                                    <input type="hidden" name="space_type" value="{% if 'banquet' in request.path %}banquet{% else %}room{% endif %}">
+
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label fw-semibold">
+                                            {% if "banquet" in request.path %}Banquet Name / Hall ID{% else %}Room Name / Number{% endif %}
+                                        </label>
+                                        <input type="text" class="form-control" id="name" name="name" placeholder="{% if 'banquet' in request.path %}e.g. Grand Imperial Hall{% else %}e.g. Deluxe Suite 101{% endif %}" required>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="capacity" class="form-label fw-semibold">
+                                                {% if "banquet" in request.path %}Max Capacity (Pax){% else %}Max Guests{% endif %}
+                                            </label>
+                                            <input type="number" class="form-control" id="capacity" name="capacity" value="{% if 'banquet' in request.path %}100{% else %}2{% endif %}" min="1" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="price" class="form-label fw-semibold">
+                                                {% if "banquet" in request.path %}Rental Price (₹){% else %}Price per Night (₹){% endif %}
+                                            </label>
+                                            <input type="number" step="0.01" class="form-control" id="price" name="price" value="{% if 'banquet' in request.path %}15000.00{% else %}1500.00{% endif %}" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="image" class="form-label fw-semibold">
+                                            {% if "banquet" in request.path %}Upload Banquet Image{% else %}Upload Room Image{% endif %}
+                                        </label>
+                                        <input type="file" class="form-control" id="image" name="image">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="notes" class="form-label fw-semibold">
+                                            {% if "banquet" in request.path %}Banquet Amenities & Details{% else %}Room Amenities & Details{% endif %}
+                                        </label>
+                                        <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="{% if 'banquet' in request.path %}e.g. Stage, projector, sound system, AC{% else %}e.g. King-size bed, AC, Free Wi-Fi, Balcony view{% endif %}"></textarea>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-success w-100 fw-semibold py-2">
+                                        {% if "banquet" in request.path %}Save Banquet Hall{% else %}Save Room Unit{% endif %}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-7">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-body p-4">
+                                <h5 class="fw-bold mb-3">
+                                    {% if "banquet" in request.path %}Live Banquets Grid View{% else %}Live Rooms Grid View{% endif %}
+                                </h5>
+                                
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Image</th>
+                                                <th>Unit Name</th>
+                                                <th>Capacity</th>
+                                                <th>Price</th>
+                                                <th>Status</th>
+                                                <th class="text-center">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in spaces %}
+                                            <tr>
+                                                <td>
+                                                    {% if item.image %}
+                                                        <img src="{{ item.image.url }}" alt="{{ item.name }}" class="rounded" style="width: 45px; height: 45px; object-fit: cover;">
+                                                    {% else %}
+                                                        <div class="bg-secondary rounded text-white d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;"><i class="fas fa-bed"></i></div>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="fw-bold">{{ item.name }}</td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark border px-2 py-1">
+                                                        <i class="fas fa-user-friends text-muted me-1"></i> {{ item.capacity|default:"2" }} Pax
+                                                    </span>
+                                                </td>
+                                                <td class="fw-semibold text-success">₹{{ item.price|default:"1500.00" }}</td>
+                                                <td>
+                                                    <span class="badge bg-success px-2 py-1">Live</span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <form method="POST" action="{% url 'delete_space' item.id %}" class="d-inline">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm border-0" onclick="return confirm('Are you sure you want to delete this item?');">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                            {% empty %}
+                                            <tr>
+                                                <td colspan="6" class="text-center py-4 text-muted">No configuration records found. Use the form to add one.</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
