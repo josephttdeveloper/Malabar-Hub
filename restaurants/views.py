@@ -14,9 +14,6 @@ from django.http import JsonResponse, HttpResponse
 from .models import Restaurant, MenuItem, Space, Booking, HomeDeliveryOrder
 
 
-
-from .models import Restaurant, MenuItem, Space
-
 def home_view(request):
     return render(request, 'home.html')
 
@@ -357,22 +354,41 @@ def customer_room_booking(request, restaurant_id):
     spaces = Space.objects.filter(restaurant=restaurant, space_type='room')
     
     if request.method == 'POST':
-        space_id = request.POST.get('space_id')
-        checkin = request.POST.get('checkin')
-        checkout = request.POST.get('checkout')
+        room_id = request.POST.get('room_id') 
+        checkin = request.POST.get('check_in') 
+        checkout = request.POST.get('check_out') # Fixed: matches HTML name="check_out"
         guests = request.POST.get('guests', 2)
         
-        booking_name = request.POST.get('booking_name')
-        booking_phone = request.POST.get('booking_phone')
-        extra_bed = True if request.POST.get('extra_bed') == 'on' else False
-        payment_mode = request.POST.get('payment_mode')        
-        advance_amount = request.POST.get('advance_amount')    
-        payment_method = request.POST.get('roomPaymentMethod') 
+        booking_name = request.POST.get('full_name') 
+        booking_phone = request.POST.get('contact_number') 
+        extra_bed = True if request.POST.get('extra_bed') == '500' else False
+        payment_mode = request.POST.get('payment_type', 'full') 
+        payment_method = request.POST.get('payment_method') 
         
-        space = Space.objects.filter(id=space_id).first() if space_id else None
+        space = Space.objects.filter(id=room_id).first() if room_id else None
         
-        # Determine payment status dynamically based on mode
-        pay_status = 'Paid' if payment_mode == 'full' else 'Partial'
+        # Calculate totals dynamically on server side for safety
+        nights = 1
+        if checkin and checkout:
+            try:
+                d1 = datetime.strptime(checkin, '%Y-%m-%d')
+                d2 = datetime.strptime(checkout, '%Y-%m-%d')
+                nights = max((d2 - d1).days, 1)
+            except ValueError:
+                pass
+
+        room_price = float(space.price_per_slot) if space else 0.0
+        room_total = nights * room_price
+        extra_bed_total = (nights * 500.0) if extra_bed else 0.0
+        total_amount = room_total + extra_bed_total
+        
+        # Determine paid amount based on full or advance option
+        if payment_mode == 'advance':
+            paid_amount = total_amount * 0.30
+            pay_status = 'Partial'
+        else:
+            paid_amount = total_amount
+            pay_status = 'Paid'
         
         Booking.objects.create(
             user=request.user,
@@ -382,18 +398,19 @@ def customer_room_booking(request, restaurant_id):
             booking_date=datetime.now(),
             checkin=checkin if checkin else None,
             checkout=checkout if checkout else None,
-            guests_count=int(guests),
-            name=booking_name,             
+            guests_count=int(guests) if str(guests).isdigit() else 2,
+            name=booking_name,            
             phone=booking_phone,            
             extra_bed=extra_bed,            
             payment_mode=payment_mode,      
-            paid_amount=advance_amount,
-            payment_method=payment_method,          
-            payment_status=pay_status, # Included payment_status here
+            paid_amount=paid_amount,
+            payment_method=payment_method,      
+            payment_status=pay_status,
             status='Pending'
         )
         
         messages.success(request, f"Room reservation submitted successfully! Status: Pending.")
+        # Fixed: Redirecting to customer bookings dashboard view
         return redirect('customer_bookings')
     
     checkin_date = request.GET.get('checkin')
@@ -403,42 +420,23 @@ def customer_room_booking(request, restaurant_id):
     room_types = request.GET.getlist('room_type')
     max_price = request.GET.get('max_price')
     sort_by = request.GET.get('sort_by')
-    has_ac = request.GET.get('has_ac')
-    free_breakfast = request.GET.get('free_breakfast')
-    extra_bed = request.GET.get('extra_bed')
-    floor_pref = request.GET.get('floor_pref')
 
-    if guest_count and hasattr(Space, 'capacity'):
+    if guest_count:
         try:
             spaces = spaces.filter(capacity__gte=int(guest_count))
         except ValueError:
             pass
 
-    if room_types and hasattr(Space, 'room_type'):
-        spaces = spaces.filter(room_type__in=room_types)
-        
-    if max_price and hasattr(Space, 'price'):
+    if max_price:
         try:
-            spaces = spaces.filter(price__lte=float(max_price))
+            spaces = spaces.filter(price_per_slot__lte=float(max_price))
         except ValueError:
             pass
-            
-    if has_ac == 'on' and hasattr(Space, 'has_ac'):
-        spaces = spaces.filter(has_ac=True)
-        
-    if free_breakfast == 'on' and hasattr(Space, 'free_breakfast'):
-        spaces = spaces.filter(free_breakfast=True)
-        
-    if extra_bed == 'on' and hasattr(Space, 'extra_bed_available'):
-        spaces = spaces.filter(extra_bed_available=True)
-        
-    if floor_pref and hasattr(Space, 'floor'):
-        spaces = spaces.filter(floor=floor_pref)
 
-    if sort_by == 'price_asc' and hasattr(Space, 'price'):
-        spaces = spaces.order_by('price')
-    elif sort_by == 'price_desc' and hasattr(Space, 'price'):
-        spaces = spaces.order_by('-price')
+    if sort_by == 'price_asc':
+        spaces = spaces.order_by('price_per_slot')
+    elif sort_by == 'price_desc':
+        spaces = spaces.order_by('-price_per_slot')
 
     context = {
         'restaurant': restaurant,
